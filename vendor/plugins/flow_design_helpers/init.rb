@@ -2,6 +2,7 @@
 # Adds fields for the project image, etc
 require 'redmine'
 
-RAILS_DEFAULT_LOGGER.info 'Starting Design Helpers plugin'
+config.to_prepare do
+  ApplicationController.helper(MenuGeneratorHelper)
+end
 
-require File.dirname(__FILE__) + '/lib/project_extender'
