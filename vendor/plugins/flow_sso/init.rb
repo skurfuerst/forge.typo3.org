@@ -1,0 +1,1 @@
+# Redmine SSO database migration

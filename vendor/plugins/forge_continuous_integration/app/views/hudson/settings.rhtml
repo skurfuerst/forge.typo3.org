@@ -1,0 +1,16 @@
+
+
+<% form_remote_tag :url => { :controller => 'hudson', :action => 'settings', :id => @project } do %>
+
+<div class="box tabular">
+
+<p><label for="hudson_package_key">Package key</label><input id="hudson_package_key" name="hudson[package_key]" value="<%=@hudson.package_key%>" /></p>
+
+<p>Current SVN URL in hudson: <%=@hudson.svn_url %><br>
+<em>When you press <b>save</b>, the SVN URL is set to the SVN URL of the project.</em></p>
+
+<p><label>Continuous Integration disabled:</label><%=check_box(:hudson, :disabled) %></p>
+
+</div>
+<%= submit_tag('Save') %>
+<% end %>

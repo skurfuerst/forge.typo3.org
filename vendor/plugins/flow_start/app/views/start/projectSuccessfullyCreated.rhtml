@@ -1,0 +1,15 @@
+<h1>Your project was successfully created!</h1>
+Congratulations, everything worked well!
+<p>
+<div class="box">
+<h2>Next steps</h2>
+<ul>
+  <li><b><%= link_to "Configure", {:controller => 'projects', :action => 'settings', :id => @project.identifier} %> your project</b> and enable the modules you want to use.</li>
+  <li><b>Unhide</b> your project when you are ready, so everybody can see it.</li>
+  <li><b>Use subversion</b> <% if @project.repository then %> at <a href="<%= @project.repository.url %>"><%= @project.repository.url %></a>.<% end %> This even works with your TYPO3.org username and password!</li>
+  <li><b>Invite others</b> to join your project and develop together with them.</li>
+  <li><b>Coordinate yourselves</b> through the wiki and the bugtracker</li>
+  <li><b>Tell others</b> about your project on the roadmap and news postings!</li>
+</ul>
+</div>
+<h2><%= link_to "Take me to " + @project.name, {:controller => 'projects', :action => 'show', :id => @project.identifier } %></h2>

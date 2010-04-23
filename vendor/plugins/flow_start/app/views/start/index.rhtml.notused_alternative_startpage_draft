@@ -1,0 +1,153 @@
+
+
+<!--<h2><%= l(:label_home) %></h2>
+<div class="splitcontentleft">
+		<div class="box">
+  		<% @project_tree.keys.sort.each do |project| %>
+		<h3><%= link_to h(project.name), {:controller => 'projects', :action => 'show', :id => project}, :class => (User.current.member_of?(project) ? "icon icon-fav" : "") %></h3>
+		<%= textilizable(project.description, :project => project) %>
+
+		<% if @project_tree[project].any? %>
+		    <p><%= l(:label_subproject_plural) %>:
+		    <%= @project_tree[project].sort.collect {|subproject| 
+		       link_to(h(subproject.name), {:controller => 'projects', :action => 'show', :id => subproject}, :class => (User.current.member_of?(subproject) ? "icon icon-fav" : ""))}.join(', ') %></p>
+		<% end %>
+		<% end %>
+		</div>
+</div>
+
+<div class="splitcontentright">
+		<%= textilizable Setting.welcome_text %>
+		  <% if @news.any? %>
+		  <div class="box">
+			<h3><%=l(:label_news_latest)%></h3>
+				<%= render :partial => 'news/news', :collection => @news %>
+				<%= link_to l(:label_news_view_all), :controller => 'news' %>
+		  </div>
+		  <% end %>
+</div>	
+-->
+
+<style type="text/css">
+.pkg {
+  width: 200px;
+  height: 500px;
+  border: 1px solid #ff8700;
+
+  float:left;
+  overflow:hidden;
+  /*background-color:#ffe3c4;*/
+  padding:10px;
+}
+.pkg h2 {
+  width:300px;
+}
+.pkg .pkgcontents {
+  opacity:0;
+}
+
+.clearer {
+  clear:both;
+}
+
+#content {
+  width:800px;
+  height:400px;
+  position:relative;
+}
+
+</style>
+<script type="text/javascript">
+
+var numberOfAreas = 4;
+
+var defaultWidth = 200; // default width of each block
+var smallWidth = 100; // width of a small block
+var bigWidth = defaultWidth*numberOfAreas - smallWidth*(numberOfAreas-1);
+function show(area) {
+  
+  for(var i=1; i <= numberOfAreas; i++) {
+    if (i == area) {
+      $('area-'+i).morph('width:'+bigWidth+'px');
+    } else {
+      $('area-'+i).morph('width:'+smallWidth+'px');
+    }
+  }
+
+  hide(area);
+}
+
+oldArea = "";
+function hide(area) {
+  if (oldArea != "") {
+    new Effect.Opacity("area-"+oldArea+"-contents", {duration:0.5, from:1, to:0});
+  }
+  $("area-"+area+"-contents").style.width = bigWidth+"px";
+  new Effect.Opacity("area-"+area+"-contents", {duration:0.5, from:0, to:1});
+  //$('area-'+area).morph('background-color:#ffffff;');
+  oldArea = area;
+}
+
+</script>
+
+<div class="pkg" id="area-1">
+  <h2><a href="javascript:show(1)">Research and planning</a></h2>
+  <div id="area-1-contents" class="pkgcontents">
+    <h3>TYPO3 v4</h3>
+    Planning for TYPO3 v4, the rock-stable CMS for the masses
+    <h3>FLOW3</h3>
+    General planning for FLOW3, a leading enterprise PHP framework
+    <h3>TYPO3 v5</h3>
+    Planning for the upcoming, completely rewritten CMS.
+  </div>
+</div>     
+
+<div class="pkg" id="area-2">
+  <h2><a href="javascript:show(2)">  Development v5</a></h2>
+  <div id="area-2-contents" class="pkgcontents">
+    <h3>FLOW3</h3>
+    Development of the next-generation PHP Framework
+    <h3>TYPO3 v5 Packages</h3>
+    Development of the next-generation TYPO3 Packages
+    <ul>
+      <li>TYPO3</li>
+      <li>TypoScript</li>
+      <li>Testing</li>
+      <li>phpUnit</li>
+      <li>TYPO3CGL</li>
+      <li>TYPO3CR</li>
+      <li>phpCR</li>
+    </ul>
+  </div>
+</div>
+  
+<div class="pkg" id="area-3">
+  <h2><a href="javascript:show(3)">Teams &amp; Projects</a></h2>
+  <div id="area-3-contents" class="pkgcontents">
+    <h3>typo3.org</h3>
+    Issues related to the typo3.org website.
+    <h3>DocTeam</h3>
+    Documentation writing
+    <h3>forge.typo3.org</h3>
+    Server team responsible for forge.typo3.org and svn.typo3.org
+    <h3>flow3.typo3.org</h3>
+    Issues related to the flow3 website.
+  </div>
+</div>     
+
+<div class="pkg" id="area-4">
+  <h2><a href="javascript:show(4)">Development v4</a></h2>
+  <div id="area-4-contents" class="pkgcontents">
+    <h3>Core</h3>
+    The current core of TYPO3 v4
+    <h3>Extensions</h3>
+    <ul>
+      <li>...</li>
+    </ul>
+  </div>
+</div>     
+<div class="clearer"></div>
+
+<% content_for :header_tags do %>
+<%= auto_discovery_link_tag(:atom, {:controller => 'news', :action => 'index', :key => User.current.rss_key, :format => 'atom'}, {:title => l(:label_news_latest)}) %>
+<% end %>

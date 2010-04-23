@@ -1,0 +1,29 @@
+<h2>Create Project on forge.typo3.org</h2>
+<div class="box">
+<h3>Have your project instantly available!</h3>
+After you filled out the form below, you will have the following resources just for your project:
+<ul>
+  <li>Collaborate with others through the <b>built-in subversion</b> repository.</li>
+  <li>Use the <b>issue tracker</b> to fix bugs faster.</li>
+  <li>Share your thoughts about future project versions in the <b>roadmap</b></li>
+  <li>Collaborate with your fellow team members in the <b>wiki</b></li>
+</ul>
+</div>
+<% form_tag({:action => 'createProject'}) do %>
+
+<div class="tabular settings box">
+<p><label>Project Type <span class="required">*</span> </label>
+<%= select_tag 'project_type', options_for_select( [['TYPO3 4.x Extension', 'v4_extension'], ['TYPO3 5.x Package', 'v5_package']], params[:project_type] ) %></p>
+
+<p><label>Name <span class="required">*</span> </label>
+<%= text_field_tag 'project_name', params[:project_name], :size => 30 %></p>
+
+<p><label>Extension / Package Key <span class="required">*</span> </label>
+<%= text_field_tag 'package_key', params[:package_key], :size => 30 %></p>
+
+<p><label>Short Description </label>
+<%= text_area_tag 'description', params[:description], :cols => 60, :rows => 5 %></p>
+</div>
+ 
+<%= submit_tag 'Register Project!' %>
+<% end %> 

@@ -1,0 +1,8 @@
+# Sample plugin
+label_plugin_metrics: Metrics
+label_overview: Overview
+label_tests: Tests
+label_coverage: Code Coverage
+label_compliancy: CGL Compliancy
+text_say_hello: Plugin say 'Hello'
+text_say_goodbye: Plugin say 'Good bye'

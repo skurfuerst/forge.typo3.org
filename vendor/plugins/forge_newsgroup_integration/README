@@ -1,0 +1,5 @@
+Install Instructions:
+
+Needed to patch projects_helper.rb in method projects_settings_tabs; add the following:
+
+:name => 'newsgroup', :action => :newsgroup_show, :partial => '../../vendor/plugins/forge_newsgroup_integration/app/views/settings', :label => 'Newsgroups'} 

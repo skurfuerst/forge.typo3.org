@@ -1,0 +1,13 @@
+<% remote_form_for :newsgroup, @project,
+                   :url => { :controller => 'newsgroup', :action => 'edit', :id => @project },
+                   :builder => TabularFormBuilder,
+                   :lang => current_language do |f| %>
+
+<%= error_messages_for 'newsgroup' %>
+
+<div class="box tabular">
+<p><%= f.text_field :newsgroup_name, :size => 60, :required => true %></p>
+</div>
+
+<%= submit_tag((@wiki.nil? || @wiki.new_record?) ? l(:button_create) : l(:button_save)) %>
+<% end %>

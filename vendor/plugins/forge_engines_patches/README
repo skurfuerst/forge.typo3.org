@@ -1,0 +1,30 @@
+ForgeEnginesPatches
+===================
+
+    das macht eigentlich nichts anderes, als zwei kleine dinge der engines zu überschreiben
+    einmal fügt es eine zusätzliche methode in der Klasse "Enginges::Plugin" hinzu
+    weiterhin überschreibt es die Methode des Engines Plugin, die für das Laden der verschiedenen Verzeichnisse zuständig ist
+    hier gibt es jetzt die möglichkeit plugins zu definieren, die erst nach dem app-folder geladen werden... und somit dinge überschreiben können
+    die plugins werden definiert in einer yml-datei (config/patch_plugins.yml)
+    das ist eine einfache liste (besser gesagt ein array) und alle plugins, die funktionen von redmine (dem app-folder) überschreiben wollen, müssen hier eingetragen werden
+    weiterhin sind noch zwei kleine dinge zu tun:
+    in der enviroment.rb muss die reihenfolge für das laden der plugins definiert werden:
+      config.plugins = [ :engines, :forge_engines_patches, :all ]
+    also erst die engines laden, dann mein plugin... und dann alle anderen
+    und beim starten der engines muss noch eine funktionaltät ausgeschaltet werden, die unser plugin übernimmt:
+      # Don't use dependencies!!!
+      Engines.rails_extensions = %w(action_mailer asset_helpers routing migrations)
+    das war's und so sollte es gehen
+    dann müssen neue plugins nur noch in der yml datei eingetragen werden
+    das überschreiben handhabt jedoch "nur" helper/controller und view dateien
+    view-dateien werden nicht "gehooked", sondern immer komplett überschrieben
+    bei helpern/controllern ist es möglich, gezielt einzelne methoden zu überschreiben
+    models stehen außen vor und werden nicht von dem plugin behandelt, die haben einen anderen lade-mechanismus... aber da gibt es sicherlicha auch mittel und wege... :-)
+
+Example
+=======
+
+Example goes here.
+
+
+Copyright (c) 2008 [name of plugin creator], released under the MIT license

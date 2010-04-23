@@ -1,0 +1,17 @@
+<% if (@platform_details[system][:color] == "red") then %>
+	<b>This build failed on <%=system %>.</b> <%=hudson_link "Find out why... (Opens console)", @project, system, "/lastBuild/console" %>
+<% else %>
+	<% if @platform_details[system][:test_score].to_i == 100 then %>
+		<b>All unit tests passed! Great!</b>
+	<% else %>
+		<%= @platform_details[system][:test_summary]%>
+		<h3>Failed unit tests:</h3>
+		<ul>
+		<% @platform_test_results[system].elements.each('outer/child') do |item| %>
+		  <li><b><%=item.text('className') %>-><%=item.text('name') %></b><br>
+		  <%=h(item.text('errorStackTrace')).gsub(/\n/, '<br>')%>
+		  </li>
+		<% end %>
+		</ul>
+	<% end %>
+<% end %>

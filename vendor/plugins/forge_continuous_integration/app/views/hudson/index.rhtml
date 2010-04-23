@@ -1,0 +1,53 @@
+<% if @no_data_yet then %>
+	<h1>Continuous Integration</h1>
+	<p>No data available yet!</p>
+<% else %>
+	<div class="contextual">
+		<%= hudson_watcher_tag(@project, User.current) %> (via jabber)	
+	</div>
+	<h1>Continuous Integration</h1>
+	<p><a href="http://forge.typo3.org:8080/job/<%=@project.identifier%>">See Hudson for more details</a></p>
+	<% if(!User.current.jabber_id or User.current.jabber_id == "") then %>
+		<p>To get notified on each build, we use the Jabber system. 
+			<b>Please enter your jabber ID on <%=link_to("My account", :controller => 'my', :action => 'account')%> to use this service.</b>
+			Afterwards, use the Watch/Unwatch links on the top right side.
+		</p>
+	<% end %>
+	<div class="box">
+		<h2>Overview 
+			<%= image_tag("/plugin_assets/forge_continuous_integration/images/32x32/"+@details[:color]+".gif", :title => "Project Status")%>
+			<%=image_tag("/plugin_assets/forge_continuous_integration/images/32x32/health-"+format_health_score(@details[:health_score])+".gif", :title => "Build Stability")%>
+		</h2>
+		<ul>
+			<li><b>Build number:</b> <%= @details[:lastBuildNumber] %></li>
+		</ul>
+	</div>
+	<div class="box">
+		<h2>Coding Style</h2>
+	</div>	
+	
+	<% tabs = hudson_tabs %>
+	<% selected_tab = params[:tab] ? params[:tab].to_s : tabs.first[:name] %>
+	
+	<div class="tabs">
+	<ul>
+		
+	<% tabs.each do |tab| -%>
+		<li><%= link_to l(tab[:label]+" "+image_tag("/plugin_assets/forge_continuous_integration/images/16x16/"+@platform_details[tab[:name]][:color]+".gif")), { :tab => tab[:name] },
+	                                    :id => "tab-#{tab[:name]}",
+	                                    :class => (tab[:name] != selected_tab ? nil : 'selected'),
+	                                    :onclick => "showTab('#{tab[:name]}'); this.blur(); return false;" %></li>
+	<% end -%>
+	</ul>
+	</div>
+	
+	<% tabs.each do |tab| -%>
+	<%= content_tag('div', render(:partial => 'tab_contents', :locals => {:system => tab[:name]}),
+	                       :id => "tab-content-#{tab[:name]}",
+	                       :style => (tab[:name] != selected_tab ? 'display:none' : nil),
+	                       :class => 'tab-content') %>
+	<% end -%>
+	
+		
+	
+<% end %>

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<matrix-project>
+  <actions class="java.util.concurrent.CopyOnWriteArrayList"/>
+  <description>[Enter description here]</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.security.AuthorizationMatrixProperty/>
+  </properties>
+  <scm class="hudson.scm.SubversionSCM">
+    <locations>
+      <hudson.scm.SubversionSCM_-ModuleLocation>
+        <remote>https://svn.typo3.org/FLOW3/Packages/FLOW3/trunk</remote>
+        <local>trunk</local>
+      </hudson.scm.SubversionSCM_-ModuleLocation>
+    </locations>
+    <useUpdate>true</useUpdate>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <triggers class="vector">
+    <hudson.triggers.SCMTrigger>
+      <spec>*/2 * * * *</spec>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <axes>
+    <axis>
+      <name>label</name>
+      <values>
+        <string>Linux</string>
+        <string>Windows</string>
+        <string>Mac</string>
+      </values>
+    </axis>
+  </axes>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>cd ../../../../helpers/
+
+if [ "$OS" = "Windows_NT" ]; then
+      phing/bin/phing.bat -f build.xml all -Dpackage=FLOW3
+else
+      phing/bin/phing -f build.xml all -Dpackage=FLOW3
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.junit.JUnitResultArchiver>
+      <testResults>**/Build/PHPUnit/*.xml</testResults>
+    </hudson.tasks.junit.JUnitResultArchiver>
+    <hudson.plugins.checkstyle.CheckStylePublisher>
+      <threshold></threshold>
+      <thresholdEnabled>false</thresholdEnabled>
+      <minimumAnnotations>0</minimumAnnotations>
+      <healthy></healthy>
+      <unHealthy></unHealthy>
+      <healthyAnnotations>0</healthyAnnotations>
+      <unHealthyAnnotations>0</unHealthyAnnotations>
+      <healthyReportEnabled>false</healthyReportEnabled>
+      <height></height>
+      <pluginName>[CHECKSTYLE] </pluginName>
+      <pattern>**/Build/Checkstyle/checkstyle.xml</pattern>
+    </hudson.plugins.checkstyle.CheckStylePublisher>
+    <hudson.plugins.cigame.GamePublisher/>
+    <hudson.plugins.jabber.im.transport.JabberPublisher>
+      <targets class="linked-list">
+      </targets>
+      <notificationStrategy class="hudson.plugins.jabber.NotificationStrategy">ALL</notificationStrategy>
+      <notifyOnBuildStart>false</notifyOnBuildStart>
+      <notifySuspects>false</notifySuspects>
+      <notifyFixers>false</notifyFixers>
+    </hudson.plugins.jabber.im.transport.JabberPublisher>
+  </publishers>
+  <buildWrappers/>
+</matrix-project>

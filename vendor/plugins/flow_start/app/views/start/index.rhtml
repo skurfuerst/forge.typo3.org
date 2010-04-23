@@ -1,0 +1,92 @@
+<div class="startpage">
+  <div class="splitcontentleft">
+    <div class="box" id="box-left">
+      <h2>Share <span class="orange">your experience</span></h2>
+      <ul>
+        <li><b>Submit bugs.</b> We need you to find all of them!</li>
+        <li><b>Write patches.</b> Pitch in improvements of extensions!</li>
+        <li><b>Join projects.</b> Make TYPO3 even better by dedicating your work!</li>
+        <li><b>Publish extensions.</b> Open up your ideas to let others contribute!</li>
+      </ul>
+      <% if ! User.current.logged? %>
+      <%= button_to "Login", {:controller => 'login'}, {:method => 'get' } %>
+      <% end %>
+    </div>
+    
+    <% if @news.any? %>
+      <div class="box" id="news">
+      <h3>Latest</h3>
+          <%= render :partial => 'news/news', :collection => @news %><p>
+          <%= link_to "View all", :controller => 'news' %>
+      </div>
+    <% end %>
+
+  </div>
+
+  <div class="splitcontentright">
+   <div class="box" id="box-right">
+      <h2>Organize <span class="orange">your contribution</span></h2>
+      <ul>
+        <li><b>Instant Subversion Access.</b> Use subversion for revision management.</li>
+        <li><b>Issue Tracker.</b> Manage issues and publish your roadmap!</li>
+        <li><b>Invitations.</b> Invite others to join your project.</li>
+        <li><b>News Publishing.</b> Tell others about the state of your project.</li>
+      </ul>
+      <%= button_to "Register Project", {:controller => 'start', :action => 'createProject' }, {:method => 'get'} %>
+      <p style="padding-left:18px">
+      <%= link_to "Learn more", :action => 'about' %>
+      </p>
+    </div>
+   
+
+    <div style="min-height:100px;position:relative" id="randomUsers" class="box">
+      <h3>Random Users</h3>
+        <% i=0
+        @random_users.each { |user| %>
+          <div style="<%= (i==0?'':'display:none;')%>top:45px;position:absolute;" id="slideshow<%= (i = i+1); i.to_s %>">
+            <div class="role-user">
+              <%= link_to_user_with_image user, 1 %>
+            </div>
+            <div class="user-projects">
+              <% user.projects.each { |prj| %>
+                <%= link_to prj, :controller => 'projects', :action => 'show', :id =>   prj.identifier %>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+    </div>
+    
+    <script type="text/javascript">
+      start_slideshow(1, <%=@random_users.length%>, 8000);
+
+      function start_slideshow(start_frame, end_frame, delay) {
+          setTimeout(switch_slides(start_frame,start_frame,end_frame, delay), delay);
+      }
+
+      function switch_slides(frame, start_frame, end_frame, delay) {
+          return (function() {
+              Effect.Fade('slideshow' + frame);
+              if (frame == end_frame) { frame = start_frame; } else { frame = frame + 1; }
+              setTimeout("Effect.Appear('slideshow" + frame + "');", 850);
+              setTimeout(switch_slides(frame, start_frame, end_frame, delay), delay + 850);
+          })
+      }
+      
+      function setBoxesToSameHeight(box1, box2) {
+        var height = $(box1).getHeight();
+        var height2 = $(box2).getHeight();
+        if (height < height2)
+          height = height2;
+        $(box1).setStyle({height: height+'px'});
+        $(box2).setStyle({height: height+'px'});
+      }
+      setBoxesToSameHeight('box-left', 'box-right');
+      setBoxesToSameHeight('news', 'randomUsers');
+    </script>
+
+
+  </div>	
+</div>
+<% content_for :header_tags do %>
+<%= auto_discovery_link_tag(:atom, {:controller => 'news', :action => 'index', :key => User.current.rss_key, :format => 'atom'}, {:title => l(:label_news_latest)}) %>
+<% end %>

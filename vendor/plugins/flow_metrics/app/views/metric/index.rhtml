@@ -1,0 +1,18 @@
+<h2><%= l(:label_plugin_metrics) %></h2>
+
+<div class="tabs">
+<ul>
+<% @metric_tabs.each do |tab| %>
+  <li><%= link_to l(tab[:label]), {}, :id => "tab-#{tab[:name]}", :onclick => "showTab('#{tab[:name]}'); this.blur(); return false;" %></li>
+<% end %>
+</ul>
+</div>
+
+<% @metric_tabs.each do |tab| %>
+<%= content_tag('div', render(:partial => tab[:partial]), :id => "tab-content-#{tab[:name]}", :class => 'tab-content') %>
+<% end %>
+
+<%= tab = @params[:tab] ? h(@params[:tab]) : @metric_tabs.first[:name]
+javascript_tag "showTab('#{tab}');" %>
+
+<% html_title(l(:label_settings)) -%>
