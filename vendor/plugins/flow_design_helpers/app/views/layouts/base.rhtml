@@ -30,21 +30,25 @@
 </div>
       
 <div id="header">
-    <div id="quick-search">
-        <% form_tag({:controller => 'search', :action => 'index', :id => @project}, :method => :get ) do %>
-        <%= hidden_field_tag(controller.default_search_scope, 1, :id => nil) if controller.default_search_scope %>
-        <%= link_to l(:label_search), {:controller => 'search', :action => 'index', :id => @project}, :accesskey => accesskey(:search) %>:
-        <%= text_field_tag 'q', @question, :size => 20, :class => 'small', :accesskey => accesskey(:quick_search) %>
-        <% end %>
-        <%= render_project_jump_box %>
-    </div>
     <div id="header-left">
         <div id="header-menu">
             <%= render_header_menu(@project) %>
         </div>
     </div>
     
-    <h1><%= page_header_title %></h1>
+    <div id="right-area" <%= render_header_image @project %>>
+        <div id="quick-search">
+            <% form_tag({:controller => 'search', :action => 'index', :id => @project}, :method => :get ) do %>
+            <%= hidden_field_tag(controller.default_search_scope, 1, :id => nil) if controller.default_search_scope %>
+            <%= link_to l(:label_search), {:controller => 'search', :action => 'index', :id => @project}, :accesskey => accesskey(:search), :style => render_header_textcolor(@project) %>:
+            <%= text_field_tag 'q', @question, :size => 20, :class => 'small', :accesskey => accesskey(:quick_search) %>
+            <% end %>
+            <%= render_project_jump_box %>
+        </div>
+
+        <h1><%= page_header_title %></h1>
+        <div id="quicklinks"><%= (@project ? textilizable (@project.quicklinks) :'') %></div>
+    </div>
     
     <% if display_main_menu?(@project) %>
     <div id="main-menu">
@@ -54,6 +58,9 @@
 </div>
 
 <%= tag('div', {:id => 'main', :class => (has_content?(:sidebar) ? '' : 'nosidebar')}, true) %>
+    <div id="leftmenu">
+        <%= render_left_menu (@project) %>
+    </div>
     <div id="sidebar">        
         <%= yield :sidebar %>
         <%= call_hook :view_layouts_base_sidebar %>
