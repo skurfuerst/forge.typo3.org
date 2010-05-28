@@ -80,7 +80,7 @@ class Issue < ActiveRecord::Base
   end
   
   def copy_from(arg)
-    issue = arg.is_a?(Issue) ? arg : Issue.find(arg)
+    issue = arg.is_a?(Issue) ? arg : Issue.visible.find(arg)
     self.attributes = issue.attributes.dup.except("id", "created_on", "updated_on")
     self.custom_values = issue.custom_values.collect {|v| v.clone}
     self.status = issue.status
@@ -389,6 +389,22 @@ class Issue < ActiveRecord::Base
     Issue.update_versions(["#{Version.table_name}.project_id IN (?) OR #{Issue.table_name}.project_id IN (?)", moved_project_ids, moved_project_ids])
   end
 
+  # Returns an array of projects that current user can move issues to
+  def self.allowed_target_projects_on_move
+    projects = []
+    if User.current.admin?
+      # admin is allowed to move issues to any active (visible) project
+      projects = Project.visible.all
+    elsif User.current.logged?
+      if Role.non_member.allowed_to?(:move_issues)
+        projects = Project.visible.all
+      else
+        User.current.memberships.each {|m| projects << m.project if m.roles.detect {|r| r.allowed_to?(:move_issues)}}
+      end
+    end
+    projects
+  end
+   
   private
   
   # Update issues so their versions are not pointing to a
