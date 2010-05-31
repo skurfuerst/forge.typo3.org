@@ -276,7 +276,7 @@ en:
   field_content: Content
   field_group_by: Group results by
   field_sharing: Sharing
-  
+
   setting_app_title: Application title
   setting_app_subtitle: Application subtitle
   setting_welcome_text: Welcome text
@@ -886,4 +886,14 @@ en:
   enumeration_doc_categories: Document categories
   enumeration_activities: Activities (time tracking)
   enumeration_system_activity: System Activity
+
+
+  field_quicklinks: Quicklinks
+  field_topbarbackgroundcolor: Topbar Background Color (CSS Colors)
+  field_topbartextcolor: Topbar Text Color (CSS Colors)
+  field_topbarheaderimage: Header Image
+  field_sorting: Sorting
+
+  project_module_documents: Internal Documents
+  label_document_plural: Internal Documents
 
