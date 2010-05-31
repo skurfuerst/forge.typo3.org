@@ -97,6 +97,7 @@
                 <div id="want-to-help" style="display:none">
                     How do you want to help:<br /><textarea id="team-membership-request-comment" style="height:inherit; width:99.5%" rows="2"></textarea><br />
                     <input type="hidden" id="project-id" value="<%= @project.identifier %>" />
+                    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token() %>" />
                     <input type="button" id="submit-team-membership-request" value="Submit team membership request" />
                 </div>
                    <% end %>

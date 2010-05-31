@@ -24,7 +24,7 @@ class ProjectsController < ApplicationController
   
   before_filter :find_project, :except => [ :index, :list, :add, :copy, :activity ]
   before_filter :find_optional_project, :only => :activity
-  before_filter :authorize, :except => [ :index, :list, :add, :copy, :archive, :unarchive, :destroy, :activity, :auto_complete_for_user_login ]
+  before_filter :authorize, :except => [ :index, :list, :add, :copy, :archive, :unarchive, :destroy, :activity, :auto_complete_for_user_login, :membershiprequest ]
   before_filter :authorize_global, :only => :add
   before_filter :require_admin, :only => [ :copy, :archive, :unarchive, :destroy ]
   accept_key_auth :activity
@@ -166,7 +166,7 @@ class ProjectsController < ApplicationController
 
   def membershiprequest
     # TODO: role_id 11 is currently hard coded!!
-    @project.members << Member.new(:user_id => User.current.id, :role_id => 11) if request.post?
+    @project.members << Member.new(:user_id => User.current.id, :role_ids => [ 11 ]) if request.post?
 
     # Send email
     Mailer.deliver_project_membership_request(@project, User.current, params[:description])
