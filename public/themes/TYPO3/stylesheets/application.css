@@ -103,47 +103,30 @@ td, th { font-siz:9pt; }
     margin-right:30px;
 }
 
-#leftmenu #leftmenu-border {
-  position:absolute;
-  right:-10px;
-  top:32px;
-  height:100%;
-  width:5px;
-  background-image:url(../images/border_collapse.gif);
-  background-repeat:no-repeat;
-  background-position:0 90px;
-  background-color:#cccccc;
-  cursor:pointer;
-}
 #main #leftmenu #leftmenu-contents {
     position:relative;
     width:200px;
     text-align:right;
 }
-#main #leftmenu #tab-content-menu a {
+#main #leftmenu a {
     text-decoration:none;
     display:block;
     font-size:12px;
     margin-bottom:3px;
     color:#454545;
 }
-#main #leftmenu #tab-content-menu a.current {
+#main #leftmenu a.current {
     color:#FF8700;
     font-weight:bold;
 }
-#main #leftmenu #tab-content-menu a.level-2 {
+#main #leftmenu a.level-2 {
   font-size:80%;
-  margin-right:10px;
+  margin-left:10px;
 }
-#main #leftmenu #tab-content-menu select {
+#main #leftmenu select {
   font-size:10px;
 }
-#main #leftmenu #tab-content-actions {
-  text-align:left;
-}
 
-
-#leftmenu .tabs ul { bottom:-1px; }
 
 table.list tbody td, table.list tbody tr:hover td {
     border:1px solid #D7D7D7;
