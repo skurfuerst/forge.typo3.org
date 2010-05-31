@@ -164,6 +164,16 @@ class ProjectsController < ApplicationController
     @key = User.current.rss_key
   end
 
+  def membershiprequest
+    # TODO: role_id 11 is currently hard coded!!
+    @project.members << Member.new(:user_id => User.current.id, :role_id => 11) if request.post?
+
+    # Send email
+    Mailer.deliver_project_membership_request(@project, User.current, params[:description])
+    render :text => ""
+  end
+
+  
   def settings
     @issue_custom_fields = IssueCustomField.find(:all, :order => "#{CustomField.table_name}.position")
     @issue_category ||= IssueCategory.new
@@ -345,9 +355,13 @@ class ProjectsController < ApplicationController
     @versions.reject! {|version| !project_ids.include?(version.project_id) && @issues_by_version[version].empty?}
   end
   
-  def activity
-    @days = Setting.activity_days_default.to_i
-    
+  def activity (customtimespan = 0)
+    if customtimespan != 0
+      @days = customtimespan
+    else
+      @days = Setting.activity_days_default.to_i
+    end
+
     if params[:from]
       begin; @date_to = params[:from].to_date + 1; rescue; end
     end
