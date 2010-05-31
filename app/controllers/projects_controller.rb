@@ -20,11 +20,11 @@ class ProjectsController < ApplicationController
   menu_item :activity, :only => :activity
   menu_item :roadmap, :only => :roadmap
   menu_item :files, :only => [:list_files, :add_file]
-  menu_item :settings, :only => :settings
+  menu_item :settings, :only => [:settings, :auto_complete_for_user_login]
   
   before_filter :find_project, :except => [ :index, :list, :add, :copy, :activity ]
   before_filter :find_optional_project, :only => :activity
-  before_filter :authorize, :except => [ :index, :list, :add, :copy, :archive, :unarchive, :destroy, :activity ]
+  before_filter :authorize, :except => [ :index, :list, :add, :copy, :archive, :unarchive, :destroy, :activity, :auto_complete_for_user_login ]
   before_filter :authorize_global, :only => :add
   before_filter :require_admin, :only => [ :copy, :archive, :unarchive, :destroy ]
   accept_key_auth :activity
@@ -47,6 +47,16 @@ class ProjectsController < ApplicationController
   include RepositoriesHelper
   include ProjectsHelper
   
+  def auto_complete_for_user_login
+    return if not  User.current.allowed_to?(:manage_members, @project)
+    find_options = {
+          :conditions => [ "LOWER(login) LIKE ?", '%' + params[:user][:login].downcase + '%' ],
+          :order => "login ASC",
+          :limit => 10 }
+    @items = User.find(:all, find_options)
+    render :inline => "<%= auto_complete_result @items, 'login' %>"
+  end
+
   # Lists visible projects
   def index
     respond_to do |format|
