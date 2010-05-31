@@ -16,6 +16,15 @@
     </style>
 <![endif]-->
 <%= call_hook :view_layouts_base_html_head %>
+
+<style type="text/css">
+<% if @project && @project.topbartextcolor? then %>
+#header #right-area, #header #right-area h1, #header #right-area a {
+  color:<%=@project.topbartextcolor%>;
+}
+<% end %>
+</style>
+
 <!-- page specific tags -->
 <%= yield :header_tags -%>
 </head>
@@ -50,11 +59,10 @@
         <div id="quicklinks"><%= (@project ? textilizable (@project.quicklinks) :'') %></div>
     </div>
     
-    <% if display_main_menu?(@project) %>
     <div id="main-menu">
+        <%= text_field_with_auto_complete :projectname, :project, { :class => 'projectsearch placeholder', :value => 'Project title search', :onfocus => 'this.value = ""; $(this).removeClassName("placeholder");'}, {:url => { :controller => :start, :action => :auto_complete_for_project_name}, :skip_style => true, :after_update_element => 'function(element, value) { var identNode = $(value).select(".identifier"); window.location.href="/projects/show/"+identNode[0].innerHTML }' } %>
         <%= render_main_menu(@project) %>
     </div>
-    <% end %>
 </div>
 
 <%= tag('div', {:id => 'main', :class => (has_content?(:sidebar) ? '' : 'nosidebar')}, true) %>
@@ -81,5 +89,17 @@
 </div>
 </div>
 <%= call_hook :view_layouts_base_body_bottom %>
+<script type="text/javascript">
+    var pkBaseURL = (("https:" == document.location.protocol) ? "https://piwik.typo3.org/" : "http://piwik.typo3.org/");
+    document.write(unescape("%3Cscript src='" + pkBaseURL + "piwik.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+    try {
+        var piwikTracker = Piwik.getTracker(pkBaseURL + "piwik.php", 14);
+        piwikTracker.trackPageView();
+        piwikTracker.enableLinkTracking();
+    } catch( err ) {}
+</script>
+<noscript><span style="visibility: hidden";><img src="http://piwik.typo3.org/piwik.php?idsite=14" style="border:0" alt=""/></span></noscript>
 </body>
 </html>
