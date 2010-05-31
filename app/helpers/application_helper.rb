@@ -62,7 +62,7 @@ module ApplicationHelper
   def link_to_user_with_image(user, size=0)
     if user
       completeLink = output_user_image user, size
-      completeLink << link_to(user, :controller => 'account', :action => 'show', :id => user)
+      completeLink << link_to(user, :controller => 'users', :action => 'show', :id => user)
       if size == 1
         completeLink << " (#{user.login})"
       end

@@ -67,14 +67,41 @@
 
 </div>
 
-<div class="splitcontentright">
+<div class="splitcontentright project-listing">
   <% if @users_by_role.any? %>
-	<div class="members box">
-		<h3><%=l(:label_member_plural)%></h3>	
-		<p><% @users_by_role.keys.sort.each do |role| %>
-		<%=h role %>: <%= @users_by_role[role].sort.collect{|u| link_to_user u}.join(", ") %><br />
-		<% end %></p>
-	</div>
+           <div class="box project-member-container">
+                   <h3 class="icon22 icon22-users"><%=l(:label_member_plural)%></h3>
+                   <% @users_by_role.keys.sort_by{|role|
+                       result = case role.name
+                               when 'Leader': 1
+                               when 'Co-Leader': 5
+                               when 'Member': 10
+                               when 'Inactive Member':15
+                               when 'Pending Member':20
+                               else 100
+                       end
+                       result
+                       }.each do |role| %>
+                    <p class="role">
+                           <h4><%= role.name %></h4>
+                           <% @users_by_role[role].sort.each do |user| %>
+                               <div class="role-user">
+                               <%= link_to_user_with_image user, 1 %>
+                               </div>
+                           <% end %>
+                           <div class="clearer"></div>
+                    </p>
+                   <% end %>
+                   <% if User.current.logged? && !User.current.member_of?(@project) %>
+                <b><a href="javascript:void(0);" id="joinProjectLink">Join Project</a></b>
+                <div id="want-to-help" style="display:none">
+                    How do you want to help:<br /><textarea id="team-membership-request-comment" style="height:inherit; width:99.5%" rows="2"></textarea><br />
+                    <input type="hidden" id="project-id" value="<%= @project.identifier %>" />
+                    <input type="button" id="submit-team-membership-request" value="Submit team membership request" />
+                </div>
+                   <% end %>
+           </div>
+
 	<% end %>
     
   <% if @news.any? && authorize_for('news', 'index') %>
