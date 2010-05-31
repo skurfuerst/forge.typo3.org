@@ -134,6 +134,9 @@ class ProjectsController < ApplicationController
 	
   # Show @project
   def show
+    
+    activity 5 # Show activity for last 5 days as well
+    
     if params[:jump]
       # try to redirect to the requested menu item
       redirect_to_project_menu_item(@project, params[:jump]) && return
