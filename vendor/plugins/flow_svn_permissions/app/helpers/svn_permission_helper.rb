@@ -19,8 +19,10 @@ class SvnPermissionHelper
         project_members = Array.new
 
         project.members.each do |member|
-          if member.role.allowed_to? :write_svn
-            project_members << member.user.login
+          member.roles.each do |role|
+            if role.allowed_to? :write_svn
+              project_members << member.user.login
+            end
           end
         end
         authz['groups'] << self.generateGroupName(project) + " = " + project_members.join(', ')
