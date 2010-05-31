@@ -127,6 +127,15 @@ td, th { font-siz:9pt; }
   font-size:10px;
 }
 
+#sidebar {
+	width:150px;
+}
+#content {
+	margin-left:200px;
+	margin-right:150px;
+	width:auto;
+}
+
 
 table.list tbody td, table.list tbody tr:hover td {
     border:1px solid #D7D7D7;
