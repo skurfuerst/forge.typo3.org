@@ -240,6 +240,10 @@ input, textarea, select {
   font-size:80%;
 }
 
+.tabular p {
+	clear:none;
+}
+
 
 /** Bugtracker color codes */
 
