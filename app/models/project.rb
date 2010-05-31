@@ -15,6 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+require "digest/md5"
+
 class Project < ActiveRecord::Base
   # Project statuses
   STATUS_ACTIVE     = 1
@@ -44,6 +46,11 @@ class Project < ActiveRecord::Base
   has_one :repository, :dependent => :destroy
   has_many :changesets, :through => :repository
   has_one :wiki, :dependent => :destroy
+
+  cattr_accessor :storage_path
+  @@storage_path = "#{RAILS_ROOT}/files"
+  after_save :write_file
+
   # Custom field for the project issues
   has_and_belongs_to_many :issue_custom_fields, 
                           :class_name => 'IssueCustomField',
@@ -87,6 +94,17 @@ class Project < ActiveRecord::Base
   
   def identifier_frozen?
     errors[:identifier].nil? && !(new_record? || identifier.blank?)
+  end
+
+  def topbarheaderimage=(file_data)
+    @file_data = file_data
+  end
+
+  def write_file
+    if @file_data.respond_to?('original_filename')
+      File.open("#{RAILS_ROOT}/public/images/headerimages/#{id}.jpg", "wb") { |file| file.write(@file_data.read) }
+      # put calls to other logic here - resizing, conversion etc.
+    end
   end
 
   # returns latest created projects
