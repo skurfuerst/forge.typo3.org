@@ -92,13 +92,14 @@ class StartController < ApplicationController
       
       @project = Project.new(
         :name => params[:project_name],
-        :parent_id => parent_id,
+#        :parent_id => parent_id,
         :description => params[:description],
         :identifier => identifier_name,
         :is_public => 0
         )
       @project.enabled_module_names = Redmine::AccessControl.available_project_modules
       if @project.save
+        @project.set_parent!(parent_id)
       
         # Create SVN Directory
         svn_directory = svn_base_directory + package_key
