@@ -51,7 +51,7 @@ module MenuGeneratorHelper
 
     # Display Subprojects
     Project.find(:all, :conditions => 'parent_id IS NULL', :order => :sorting).each { |prj|
-      out += generate_link_to_project (prj, (identifier == prj.identifier), 0)
+      out += generate_link_to_project(prj, (identifier == prj.identifier), 0)
     }
     return out
   end
