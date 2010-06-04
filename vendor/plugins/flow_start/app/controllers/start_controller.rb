@@ -117,7 +117,7 @@ class StartController < ApplicationController
         @repository.save
         
         # add User to Project
-        @project.members << Member.new(:user_id => User.current.id, :role_id => Setting.plugin_flow_start['own_projects_first_user_role_id'])
+        @project.members << Member.new(:user_id => User.current.id, :role_ids => [Setting.plugin_flow_start['own_projects_first_user_role_id']])
         
         SvnPermissionHelper.write_all_authz_files
         
