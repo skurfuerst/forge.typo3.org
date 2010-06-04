@@ -170,7 +170,7 @@ class ProjectsController < ApplicationController
 
     # Send email
     Mailer.deliver_project_membership_request(@project, User.current, params[:description])
-    render :text => ""
+    render :text => "We have received your request and will review it soon!"
   end
 
   

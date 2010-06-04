@@ -95,10 +95,10 @@
                    <% if User.current.logged? && !User.current.member_of?(@project) %>
                 <b><a href="javascript:void(0);" id="joinProjectLink">Join Project</a></b>
                 <div id="want-to-help" style="display:none">
-                    How do you want to help:<br /><textarea id="team-membership-request-comment" style="height:inherit; width:99.5%" rows="2"></textarea><br />
-                    <input type="hidden" id="project-id" value="<%= @project.identifier %>" />
-                    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token() %>" />
-                    <input type="button" id="submit-team-membership-request" value="Submit team membership request" />
+                    <% remote_form_for :membership, :url => { :controller => 'projects', :action => 'membershiprequest', :id => @project.identifier }, :update => 'want-to-help' do %> 
+                      How do you want to help:<br /><textarea id="team-membership-request-comment" name="description" style="height:inherit; width:99.5%" rows="2"></textarea><br />
+                      <%= submit_tag 'Submit team membership request' %>
+                    <% end %>
                 </div>
                    <% end %>
            </div>

@@ -20,7 +20,7 @@ td, th { font-siz:9pt; }
 }
 #header #header-left #header-menu {
     text-align:right;
-    padding-top:40px;
+    padding-top:20px;
     text-transform:uppercase;
     font-size:9pt;
     font-weight:bold;
@@ -73,7 +73,7 @@ td, th { font-siz:9pt; }
   padding-top: -10px; 
 }
 #quick-search a { color:white }
-#quick-search { margin-right: 6px; color:white; }
+#quick-search { margin: 6px 6px 0 0; color:white; }
 #quick-search .project-selector {
 	display:none;
 }

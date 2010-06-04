@@ -324,8 +324,8 @@ class Mailer < ActionMailer::Base
     #find all project members with manage_members role
     mail_recipients = Array.new
     project.members.each { |member|
-      role = member.user.role_for_project(project)
-      if role.allowed_to?(:manage_members)
+      roles = member.user.roles_for_project(project)
+      if roles.any?{|role| role.allowed_to?(:manage_members)}
         mail_recipients << member.user.mail
       end
     }

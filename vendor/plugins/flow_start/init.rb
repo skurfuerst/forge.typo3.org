@@ -1,8 +1,6 @@
 # Redmine sample plugin
 require 'redmine'
 
-RAILS_DEFAULT_LOGGER.info 'Starting Startpage plugin for Redmine'
-
 Redmine::Plugin.register :flow_start do
   name 'Startpage plugin'
   author 'Martin Herr <mt3x@yeebase.com>, Sebastian Kurfuerst <sebastian@typo3.org>'
