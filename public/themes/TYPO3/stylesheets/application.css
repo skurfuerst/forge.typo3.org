@@ -91,15 +91,20 @@ td, th { font-siz:9pt; }
   position:relative;
   top:2px;
 }
-#main { padding: 20px; font:90% Verdana,Tahoma,Arial,sans-serif; background: #fff; }
+#main {
+    padding: 20px;
+    font:90% Verdana,Tahoma,Arial,sans-serif;
+    background: #fff;
+    position: relative;
+}
 #main a, a:visited { color: #515151; text-decoration: underline;}
 #main a:hover { color: #515151; text-decoration: none; }
 
 #main #leftmenu {
-    float:left;
-    min-height:600px;
-    padding:0;
-    position:relative;
+    padding:10px 0 0 10px;
+    position:absolute;
+    top:0px;
+    left:0px;
     margin-right:30px;
 }
 
