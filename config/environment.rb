@@ -54,7 +54,7 @@ Rails::Initializer.run do |config|
 
   # Enable hoptoad for error notification
   config.gem 'hoptoad_notifier'
-  
+
   # Load any local configuration that is kept out of source control
   # (e.g. gems, patches).
   if File.exists?(File.join(File.dirname(__FILE__), 'additional_environment.rb'))
