@@ -13,6 +13,7 @@ class MylynConnector::ProjectsController < ApplicationController
   def all
     @projects = Project.find(:all,
       :joins => :enabled_modules,
+      :order => "name ASC",
       :conditions => [ "enabled_modules.name = 'issue_tracking' AND #{Project.visible_by}"])
 
     respond_to do |format|
