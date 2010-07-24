@@ -306,6 +306,8 @@ input, textarea, select {
 .project-activity-container dt.news {
     background-image:none;
 }
+dt.attachment { background-repeat: no-repeat; }
+dt.attachment a { padding-left: 18px; }
 
 
 
