@@ -303,11 +303,13 @@ input, textarea, select {
 
 .project-activity-container dt.changeset,
 .project-activity-container dt.issue,
-.project-activity-container dt.news {
-    background-image:none;
+.project-activity-container dt.news,
+.project-activity-container dt.attachment {
+ background-repeat:no-repeat;
 }
-dt.attachment { background-repeat: no-repeat; }
-dt.attachment a { padding-left: 18px; }
+.project-activity-container dt a {
+ padding-left:18px;
+}
 
 
 
