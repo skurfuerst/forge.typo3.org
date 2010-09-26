@@ -252,19 +252,33 @@ input, textarea, select {
 
 /** Bugtracker color codes */
 
+/* New */
 .status-1 .status {
   background-color:#fb7e7e;
 }
+
+/* Accepted */
 .status-2 .status {
   background-color:#fbee99;
 }
+
+/* Needs Feedback */
 .status-3 .status {
   background-color:#aeff91;
 }
+
+/* Under Review */
 .status-4 .status {
+  background-color:#D1F412;
+}
+
+/* Resolved */
+.status-5 .status {
   background-color:#fbc3c3;
 }
-.status-5 .status {
+
+/* Closed */
+.status-6 .status {
   background-color:#e6e6e6;
 }
 
