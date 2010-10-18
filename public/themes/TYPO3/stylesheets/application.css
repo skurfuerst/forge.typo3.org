@@ -264,7 +264,7 @@ input, textarea, select {
 
 /* Needs Feedback */
 .status-3 .status {
-  background-color:#aeff91;
+  background-color:#FBC3C3;
 }
 
 /* Under Review */
@@ -274,7 +274,7 @@ input, textarea, select {
 
 /* Resolved */
 .status-5 .status {
-  background-color:#fbc3c3;
+  background-color:#aeff91;
 }
 
 /* Closed */

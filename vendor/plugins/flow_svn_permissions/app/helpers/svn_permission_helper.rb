@@ -36,7 +36,7 @@ class SvnPermissionHelper
 	if (url == "")
            authz["/"] << "@" + self.generateGroupName(project) + " = rw" 
 	else
-            authz[url] = [ "@" + self.generateGroupName(project) + " = rw" ]
+           authz[url] = [ "@" + self.generateGroupName(project) + " = rw" ]
 	end
       end # if project.repository != nil 
     end # projects.each
