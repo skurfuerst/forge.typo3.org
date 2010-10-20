@@ -130,7 +130,9 @@ sv:
         greater_than_start_date: "måste vara senare än startdatumet"
         not_same_project: "tillhör inte samma projekt"
         circular_dependency: "Denna relation skulle skapa ett cirkulärt beroende"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -197,11 +199,13 @@ sv:
   notice_email_error: "Ett fel inträffade när mail skickades ({{value}})"
   notice_feeds_access_key_reseted: Din RSS-nyckel återställdes.
   notice_api_access_key_reseted: Din API-nyckel återställdes.
-  notice_failed_to_save_issues: "Misslyckades att spara {{count}} ärende(n) på {{total}} valt: {{ids}}."
+  notice_failed_to_save_issues: "Misslyckades med att spara {{count}} ärende(n) på {{total}} valt: {{ids}}."
+  notice_failed_to_save_members: "Misslyckades med att spara medlem(mar): {{errors}}."
   notice_no_issue_selected: "Inget ärende är markerat! Var vänlig, markera de ärenden du vill ändra."
   notice_account_pending: "Ditt konto skapades och avvaktar nu administratörens godkännande."
   notice_default_data_loaded: Standardkonfiguration inläst.
   notice_unable_delete_version: Denna version var inte möjlig att ta bort.
+  notice_unable_delete_time_entry: Tidloggning kunde inte tas bort.
   notice_issue_done_ratios_updated: % klart uppdaterade.
   
   error_can_t_load_default_data: "Standardkonfiguration gick inte att läsa in: {{value}}"
@@ -209,13 +213,18 @@ sv:
   error_scm_command_failed: "Ett fel inträffade vid försök att nå versionsarkivet: {{value}}"
   error_scm_annotate: "Inlägget existerar inte eller kan inte kommenteras."
   error_issue_not_found_in_project: 'Ärendet hittades inte eller så tillhör det inte detta projekt'
-  error_no_tracker_in_project: Ingen ärendetyp är associerad med projektet. Vänligen kontrollera projektinställningarna.
-  error_no_default_issue_status: Ingen status är definierad som standard för nya ärenden. Vänligen kontrollera din konfiguration (Gå till "Administration -> Ärendestatus").
-  error_can_not_reopen_issue_on_closed_version: Ett ärende tilldelat en stängd version kan inte öppnas på nytt
+  error_no_tracker_in_project: 'Ingen ärendetyp är associerad med projektet. Vänligen kontrollera projektinställningarna.'
+  error_no_default_issue_status: 'Ingen status är definierad som standard för nya ärenden. Vänligen kontrollera din konfiguration (Gå till "Administration -> Ärendestatus").'
+  error_can_not_delete_custom_field: Kan inte ta bort användardefinerat fält
+  error_can_not_delete_tracker: Det finns ärenden av denna typ och den är därför inte möjlig att ta bort.
+  error_can_not_remove_role: "Denna roll används och den är därför inte möjlig att ta bort."
+  error_can_not_reopen_issue_on_closed_version: 'Ett ärende tilldelat en stängd version kan inte öppnas på nytt'
   error_can_not_archive_project: Detta projekt kan inte arkiveras
-  error_issue_done_ratios_not_updated: % klart inte uppdaterade.
-  error_workflow_copy_source: Vänligen välj källans ärendetyp eller roll
-  error_workflow_copy_target: Vänligen välj ärendetyp(er) och roll(er) för mål
+  error_issue_done_ratios_not_updated: "% klart inte uppdaterade."
+  error_workflow_copy_source: 'Vänligen välj källans ärendetyp eller roll'
+  error_workflow_copy_target: 'Vänligen välj ärendetyp(er) och roll(er) för mål'
+  error_unable_delete_issue_status: 'Ärendestatus kunde inte tas bort'
+  error_unable_to_connect: Kan inte ansluta ({{value}})
   
   warning_attachments_not_saved: "{{count}} fil(er) kunde inte sparas."
   
@@ -227,7 +236,7 @@ sv:
   mail_body_account_information: Din kontoinformation
   mail_subject_account_activation_request: "{{value}} begäran om kontoaktivering"
   mail_body_account_activation_request: "En ny användare ({{value}}) har registrerat sig och avvaktar ditt godkännande:"
-  mail_subject_reminder: "{{count}} ärende(n) har deadline under de kommande dagarna"
+  mail_subject_reminder: "{{count}} ärende(n) har deadline under de kommande {{days}} dagarna"
   mail_body_reminder: "{{count}} ärende(n) som är tilldelat dig har deadline under de {{days}} dagarna:"
   mail_subject_wiki_content_added: "'{{page}}' wikisida has lagts till"
   mail_body_wiki_content_added: The '{{page}}' wikisida has lagts till av {{author}}.
@@ -272,6 +281,7 @@ sv:
   field_priority: Prioritet
   field_fixed_version: Versionsmål
   field_user: Användare
+  field_principal: Principal
   field_role: Roll
   field_homepage: Hemsida
   field_is_public: Publik
@@ -316,6 +326,7 @@ sv:
   field_redirect_existing_links: Omdirigera existerande länkar
   field_estimated_hours: Estimerad tid
   field_column_names: Kolumner
+  field_time_entries: Spenderad tid
   field_time_zone: Tidszon
   field_searchable: Sökbar
   field_default_value: Standardvärde
@@ -327,6 +338,7 @@ sv:
   field_content: Innehåll
   field_group_by: Gruppera resultat efter
   field_sharing: Delning
+  field_parent_issue: Förälderaktivitet
   
   setting_app_title: Applikationsrubrik
   setting_app_subtitle: Applikationsunderrubrik
@@ -380,12 +392,14 @@ sv:
   setting_issue_done_ratio_issue_status: Använd ärendestatus
   setting_start_of_week: Första dagen i veckan
   setting_rest_api_enabled: Aktivera REST webbtjänst
+  setting_cache_formatted_text: Cacha formaterad text
   
   permission_add_project: Skapa projekt
   permission_add_subprojects: Skapa underprojekt
   permission_edit_project: Ändra projekt
   permission_select_project_modules: Välja projektmoduler
   permission_manage_members: Hantera medlemmar
+  permission_manage_project_activities: Hantera projektaktiviteter
   permission_manage_versions: Hantera versioner
   permission_manage_categories: Hantera ärendekategorier
   permission_add_issues: Lägga till ärenden
@@ -433,6 +447,8 @@ sv:
   permission_edit_own_messages: Ändra egna meddelanden
   permission_delete_messages: Ta bort meddelanden
   permission_delete_own_messages: Ta bort egna meddelanden
+  permission_export_wiki_pages: Exportera wikisidor
+  permission_manage_subtasks: Hantera underaktiviteter
   
   project_module_issue_tracking: Ärendeuppföljning
   project_module_time_tracking: Tidsuppföljning
@@ -442,6 +458,8 @@ sv:
   project_module_wiki: Wiki
   project_module_repository: Versionsarkiv
   project_module_boards: Forum
+  project_module_calendar: Kalender
+  project_module_gantt: Gantt
   
   label_user: Användare
   label_user_plural: Användare
@@ -499,6 +517,7 @@ sv:
   label_my_page: Min sida
   label_my_account: Mitt konto
   label_my_projects: Mina projekt
+  label_my_page_block: '"Min sida"-block'
   label_administration: Administration
   label_login: Logga in
   label_logout: Logga ut
@@ -676,6 +695,7 @@ sv:
   label_changes_details: Detaljer om alla ändringar
   label_issue_tracking: Ärendeuppföljning
   label_spent_time: Spenderad tid
+  label_overall_spent_time: Total tid spenderad
   label_f_hour: "{{value}} timme"
   label_f_hour_plural: "{{value}} timmar"
   label_time_tracking: Tidsuppföljning
@@ -714,7 +734,7 @@ sv:
   label_board_new: Nytt forum
   label_board_plural: Forum
   label_board_locked: Låst
-  label_board_sticky: Sticky  
+  label_board_sticky: Sticky
   label_topic_plural: Ämnen
   label_message_plural: Meddelanden
   label_message_last: Senaste meddelande
@@ -796,9 +816,12 @@ sv:
   label_api_access_key: API-nyckel
   label_missing_api_access_key: Saknar en API-nyckel
   label_api_access_key_created_on: API-nyckel skapad för {{value}} sedan
+  label_profile: Profil
+  label_subtask_plural: Underaktiviteter
+  label_project_copy_notifications: Skicka mailnotifieringar när projektet kopieras
   
   button_login: Logga in
-  button_submit: Spara
+  button_submit: Skicka
   button_save: Spara
   button_check_all: Markera alla
   button_uncheck_all: Avmarkera alla
@@ -838,7 +861,7 @@ sv:
   button_update: Uppdatera
   button_configure: Konfigurera
   button_quote: Citera
-  button_duplicate: Duplisera
+  button_duplicate: Duplicera
   button_show: Visa
   
   status_active: aktiv
@@ -887,9 +910,9 @@ sv:
   text_issues_destroy_confirmation: 'Är du säker på att du vill radera markerade ärende(n) ?'
   text_select_project_modules: 'Välj vilka moduler som ska vara aktiva för projektet:'
   text_default_administrator_account_changed: Standardadministratörens konto ändrat
-  text_file_repository_writable: Arkivet för bifogade filer är skrivbar
-  text_plugin_assets_writable: Arkivet för plug-ins är skrivbar
-  text_rmagick_available: RMagick tillgängligt (valfritt)
+  text_file_repository_writable: Arkivet för bifogade filer är skrivbart
+  text_plugin_assets_writable: Arkivet för plug-ins är skrivbart
+  text_rmagick_available: RMagick tillgängligt (ej obligatoriskt)
   text_destroy_time_entries_question: "{{hours}} timmar har rapporterats på ärendena du är på väg att ta bort. Vad vill du göra ?"
   text_destroy_time_entries: Ta bort rapporterade timmar
   text_assign_time_entries_to_project: Tilldela rapporterade timmar till projektet
@@ -906,17 +929,19 @@ sv:
   text_wiki_page_destroy_children: Ta bort alla underliggande sidor
   text_wiki_page_reassign_children: Flytta undersidor till denna föräldersida
   text_own_membership_delete_confirmation: "Några av, eller alla, dina behörigheter kommer att tas bort och du kanske inte längre kommer kunna göra ändringar i det här projektet.\nVill du verkligen fortsätta?"
+  text_zoom_out: Zooma ut
+  text_zoom_in: Zooma in
   
   default_role_manager: Projektledare
-  default_role_developper: Utvecklare
+  default_role_developer: Utvecklare
   default_role_reporter: Rapportör
   default_tracker_bug: Bugg
   default_tracker_feature: Funktionalitet
   default_tracker_support: Support
   default_issue_status_new: Ny
-  default_issue_status_in_progress: In Progress
+  default_issue_status_in_progress: Pågår
   default_issue_status_resolved: Löst
-  default_issue_status_feedback: Feedback
+  default_issue_status_feedback: Återkoppling
   default_issue_status_closed: Stängd
   default_issue_status_rejected: Avslagen
   default_doc_category_user: Användardokumentation
@@ -933,7 +958,8 @@ sv:
   enumeration_doc_categories: Dokumentkategorier
   enumeration_activities: Aktiviteter (tidsuppföljning)
   enumeration_system_activity: Systemaktivitet
-  permission_export_wiki_pages: Export wiki pages
-  setting_cache_formatted_text: Cache formatted text
-  permission_manage_project_activities: Manage project activities
-  label_project_copy_notifications: Send email notifications during the project copy
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field

@@ -1,5 +1,5 @@
-# redMine - project management software
-# Copyright (C) 2006-2007  Jean-Philippe Lang
+# Redmine - project management software
+# Copyright (C) 2006-2010  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -16,7 +16,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require 'redmine/scm/adapters/abstract_adapter'
-require 'rexml/document'
 require 'uri'
 
 module Redmine
@@ -48,18 +47,19 @@ module Redmine
         
         # Get info about the svn repository
         def info
-          cmd = "#{SVN_BIN} info --xml #{target('')}"
+          cmd = "#{SVN_BIN} info --xml #{target}"
           cmd << credentials_string
           info = nil
           shellout(cmd) do |io|
+            output = io.read
             begin
-              doc = REXML::Document.new(io)
+              doc = ActiveSupport::XmlMini.parse(output)
               #root_url = doc.elements["info/entry/repository/root"].text          
-              info = Info.new({:root_url => doc.elements["info/entry/repository/root"].text,
+              info = Info.new({:root_url => doc['info']['entry']['repository']['root']['__content__'],
                                :lastrev => Revision.new({
-                                 :identifier => doc.elements["info/entry/commit"].attributes['revision'],
-                                 :time => Time.parse(doc.elements["info/entry/commit/date"].text).localtime,
-                                 :author => (doc.elements["info/entry/commit/author"] ? doc.elements["info/entry/commit/author"].text : "")
+                                 :identifier => doc['info']['entry']['commit']['revision'],
+                                 :time => Time.parse(doc['info']['entry']['commit']['date']['__content__']).localtime,
+                                 :author => (doc['info']['entry']['commit']['author'] ? doc['info']['entry']['commit']['author']['__content__'] : "")
                                })
                              })
             rescue
@@ -77,27 +77,27 @@ module Redmine
           path ||= ''
           identifier = (identifier and identifier.to_i > 0) ? identifier.to_i : "HEAD"
           entries = Entries.new
-          cmd = "#{SVN_BIN} list --xml #{target(URI.escape(path))}@#{identifier}"
+          cmd = "#{SVN_BIN} list --xml #{target(path)}@#{identifier}"
           cmd << credentials_string
           shellout(cmd) do |io|
             output = io.read
             begin
-              doc = REXML::Document.new(output)
-              doc.elements.each("lists/list/entry") do |entry|
-                commit = entry.elements['commit']
-                commit_date = commit.elements['date']
+              doc = ActiveSupport::XmlMini.parse(output)
+              each_xml_element(doc['lists']['list'], 'entry') do |entry|
+                commit = entry['commit']
+                commit_date = commit['date']
                 # Skip directory if there is no commit date (usually that
                 # means that we don't have read access to it)
-                next if entry.attributes['kind'] == 'dir' && commit_date.nil?
-                name = entry.elements['name'].text
+                next if entry['kind'] == 'dir' && commit_date.nil?
+                name = entry['name']['__content__']
                 entries << Entry.new({:name => URI.unescape(name),
                             :path => ((path.empty? ? "" : "#{path}/") + name),
-                            :kind => entry.attributes['kind'],
-                            :size => ((s = entry.elements['size']) ? s.text.to_i : nil),
+                            :kind => entry['kind'],
+                            :size => ((s = entry['size']) ? s['__content__'].to_i : nil),
                             :lastrev => Revision.new({
-                              :identifier => commit.attributes['revision'],
-                              :time => Time.parse(commit_date.text).localtime,
-                              :author => ((a = commit.elements['author']) ? a.text : nil)
+                              :identifier => commit['revision'],
+                              :time => Time.parse(commit_date['__content__'].to_s).localtime,
+                              :author => ((a = commit['author']) ? a['__content__'] : nil)
                               })
                             })
               end
@@ -116,15 +116,15 @@ module Redmine
           return nil unless self.class.client_version_above?([1, 5, 0])
           
           identifier = (identifier and identifier.to_i > 0) ? identifier.to_i : "HEAD"
-          cmd = "#{SVN_BIN} proplist --verbose --xml #{target(URI.escape(path))}@#{identifier}"
+          cmd = "#{SVN_BIN} proplist --verbose --xml #{target(path)}@#{identifier}"
           cmd << credentials_string
           properties = {}
           shellout(cmd) do |io|
             output = io.read
             begin
-              doc = REXML::Document.new(output)
-              doc.elements.each("properties/target/property") do |property|
-                properties[ property.attributes['name'] ] = property.text
+              doc = ActiveSupport::XmlMini.parse(output)
+              each_xml_element(doc['properties']['target'], 'property') do |property|
+                properties[ property['name'] ] = property['__content__'].to_s
               end
             rescue
             end
@@ -142,25 +142,26 @@ module Redmine
           cmd << credentials_string
           cmd << " --verbose " if  options[:with_paths]
           cmd << " --limit #{options[:limit].to_i}" if options[:limit]
-          cmd << ' ' + target(URI.escape(path))
+          cmd << ' ' + target(path)
           shellout(cmd) do |io|
+            output = io.read
             begin
-              doc = REXML::Document.new(io)
-              doc.elements.each("log/logentry") do |logentry|
+              doc = ActiveSupport::XmlMini.parse(output)
+              each_xml_element(doc['log'], 'logentry') do |logentry|
                 paths = []
-                logentry.elements.each("paths/path") do |path|
-                  paths << {:action => path.attributes['action'],
-                            :path => path.text,
-                            :from_path => path.attributes['copyfrom-path'],
-                            :from_revision => path.attributes['copyfrom-rev']
+                each_xml_element(logentry['paths'], 'path') do |path|
+                  paths << {:action => path['action'],
+                            :path => path['__content__'],
+                            :from_path => path['copyfrom-path'],
+                            :from_revision => path['copyfrom-rev']
                             }
-                end
+                end if logentry['paths'] && logentry['paths']['path']
                 paths.sort! { |x,y| x[:path] <=> y[:path] }
                 
-                revisions << Revision.new({:identifier => logentry.attributes['revision'],
-                              :author => (logentry.elements['author'] ? logentry.elements['author'].text : ""),
-                              :time => Time.parse(logentry.elements['date'].text).localtime,
-                              :message => logentry.elements['msg'].text,
+                revisions << Revision.new({:identifier => logentry['revision'],
+                              :author => (logentry['author'] ? logentry['author']['__content__'] : ""),
+                              :time => Time.parse(logentry['date']['__content__'].to_s).localtime,
+                              :message => logentry['msg']['__content__'],
                               :paths => paths
                             })
               end
@@ -179,7 +180,7 @@ module Redmine
           cmd = "#{SVN_BIN} diff -r "
           cmd << "#{identifier_to}:"
           cmd << "#{identifier_from}"
-          cmd << " #{target(URI.escape(path))}@#{identifier_from}"
+          cmd << " #{target(path)}@#{identifier_from}"
           cmd << credentials_string
           diff = []
           shellout(cmd) do |io|
@@ -193,7 +194,7 @@ module Redmine
         
         def cat(path, identifier=nil)
           identifier = (identifier and identifier.to_i > 0) ? identifier.to_i : "HEAD"
-          cmd = "#{SVN_BIN} cat #{target(URI.escape(path))}@#{identifier}"
+          cmd = "#{SVN_BIN} cat #{target(path)}@#{identifier}"
           cmd << credentials_string
           cat = nil
           shellout(cmd) do |io|
@@ -206,7 +207,7 @@ module Redmine
         
         def annotate(path, identifier=nil)
           identifier = (identifier and identifier.to_i > 0) ? identifier.to_i : "HEAD"
-          cmd = "#{SVN_BIN} blame #{target(URI.escape(path))}@#{identifier}"
+          cmd = "#{SVN_BIN} blame #{target(path)}@#{identifier}"
           cmd << credentials_string
           blame = Annotate.new
           shellout(cmd) do |io|
@@ -227,6 +228,27 @@ module Redmine
           str << " --password #{shell_quote(@password)}" unless @login.blank? || @password.blank?
           str << " --no-auth-cache --non-interactive"
           str
+        end
+        
+        # Helper that iterates over the child elements of a xml node
+        # MiniXml returns a hash when a single child is found or an array of hashes for multiple children
+        def each_xml_element(node, name)
+          if node && node[name]
+            if node[name].is_a?(Hash)
+              yield node[name]
+            else
+              node[name].each do |element|
+                yield element
+              end
+            end
+          end
+        end
+
+        def target(path = '')
+          base = path.match(/^\//) ? root_url : url
+          uri = "#{base}/#{path}"
+          uri = URI.escape(URI.escape(uri), '[]')
+          shell_quote(uri.gsub(/[?<>\*]/, ''))
         end
       end
     end

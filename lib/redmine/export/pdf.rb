@@ -154,7 +154,7 @@ module Redmine
           if query.grouped? && (group = query.group_by_column.value(issue)) != previous_group
             pdf.SetFontStyle('B',9)
             pdf.Cell(277, row_height, 
-              (group.blank? ? 'None' : group.to_s) + " (#{@issue_count_by_group[group]})",
+              (group.blank? ? 'None' : group.to_s) + " (#{query.issue_count_by_group[group]})",
               1, 1, 'L')
             pdf.SetFontStyle('',8)
             previous_group = group
@@ -255,7 +255,7 @@ module Redmine
         pdf.SetFontStyle('B',9)
         pdf.Cell(35,5, l(:field_description) + ":")
         pdf.SetFontStyle('',9)
-        pdf.MultiCell(155,5, @issue.description,"BR")
+        pdf.MultiCell(155,5, issue.description,"BR")
         
         pdf.Line(pdf.GetX, y0, pdf.GetX, pdf.GetY)
         pdf.Line(pdf.GetX, pdf.GetY, 170, pdf.GetY)
@@ -325,7 +325,7 @@ module Redmine
         pdf.Ln
         pdf.SetFontStyle('B',9)
         
-        subject_width = 70
+        subject_width = 100
         header_heigth = 5
         
         headers_heigth = header_heigth
@@ -341,7 +341,7 @@ module Redmine
           end
         end
         
-        g_width = 210
+        g_width = 280 - subject_width
         zoom = (g_width) / (gantt.date_to - gantt.date_from + 1)
         g_height = 120
         t_height = g_height + headers_heigth
@@ -415,16 +415,19 @@ module Redmine
           pdf.SetY(top)
           pdf.SetX(15)
           
+          text = ""
           if i.is_a? Issue
-            pdf.Cell(subject_width-15, 5, "#{i.tracker} #{i.id}: #{i.subject}".sub(/^(.{30}[^\s]*\s).*$/, '\1 (...)'), "LR")
+            text = "#{i.tracker} #{i.id}: #{i.subject}"
           else
-            pdf.Cell(subject_width-15, 5, "#{l(:label_version)}: #{i.name}", "LR")
+            text = i.name
           end
+          text = "#{i.project} - #{text}" unless project && project == i.project
+          pdf.Cell(subject_width-15, 5, text, "LR")
         
-          pdf.SetY(top)
+          pdf.SetY(top + 0.2)
           pdf.SetX(subject_width)
-          pdf.Cell(g_width, 5, "", "LR")
-        
+          pdf.SetFillColor(255, 255, 255)
+          pdf.Cell(g_width, 4.6, "", "LR", 0, "", 1)
           pdf.SetY(top+1.5)
           
           if i.is_a? Issue

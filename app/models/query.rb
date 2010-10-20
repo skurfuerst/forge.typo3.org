@@ -27,10 +27,11 @@ class QueryColumn
       self.groupable = name.to_s
     end
     self.default_order = options[:default_order]
+    @caption_key = options[:caption] || "field_#{name}"
   end
   
   def caption
-    l("field_#{name}")
+    l(@caption_key)
   end
   
   # Returns true if the column is sortable, otherwise false
@@ -120,6 +121,7 @@ class Query < ActiveRecord::Base
   @@available_columns = [
     QueryColumn.new(:project, :sortable => "#{Project.table_name}.name", :groupable => true),
     QueryColumn.new(:tracker, :sortable => "#{Tracker.table_name}.position", :groupable => true),
+    QueryColumn.new(:parent, :sortable => ["#{Issue.table_name}.root_id", "#{Issue.table_name}.lft ASC"], :default_order => 'desc', :caption => :field_parent_issue),
     QueryColumn.new(:status, :sortable => "#{IssueStatus.table_name}.position", :groupable => true),
     QueryColumn.new(:priority, :sortable => "#{IssuePriority.table_name}.position", :default_order => 'desc', :groupable => true),
     QueryColumn.new(:subject, :sortable => "#{Issue.table_name}.subject"),
@@ -185,9 +187,11 @@ class Query < ActiveRecord::Base
     if project
       user_values += project.users.sort.collect{|s| [s.name, s.id.to_s] }
     else
-      # members of the user's projects
-      # OPTIMIZE: Is selecting from users per project (N+1)
-      user_values += User.current.projects.collect(&:users).flatten.uniq.sort.collect{|s| [s.name, s.id.to_s] }
+      project_ids = Project.all(:conditions => Project.visible_by(User.current)).collect(&:id)
+      if project_ids.any?
+        # members of the user's projects
+        user_values += User.active.find(:all, :conditions => ["#{User.table_name}.id IN (SELECT DISTINCT user_id FROM members WHERE project_id IN (?))", project_ids]).sort.collect{|s| [s.name, s.id.to_s] }
+      end
     end
     @available_filters["assigned_to_id"] = { :type => :list_optional, :order => 4, :values => user_values } unless user_values.empty?
     @available_filters["author_id"] = { :type => :list, :order => 5, :values => user_values } unless user_values.empty?
@@ -215,6 +219,12 @@ class Query < ActiveRecord::Base
         @available_filters["fixed_version_id"] = { :type => :list_optional, :order => 7, :values => system_shared_versions.sort.collect{|s| ["#{s.project.name} - #{s.name}", s.id.to_s] } }
       end
       add_custom_fields_filters(IssueCustomField.find(:all, :conditions => {:is_filter => true, :is_for_all => true}))
+      # project filter
+      project_values = Project.all(:conditions => Project.visible_by(User.current), :order => 'lft').map do |p|
+        pre = (p.level > 0 ? ('--' * p.level + ' ') : '')
+        ["#{pre}#{p.name}",p.id.to_s]
+      end
+      @available_filters["project_id"] = { :type => :list, :order => 1, :values => project_values}
     end
     @available_filters
   end
@@ -238,6 +248,13 @@ class Query < ActiveRecord::Base
     return unless expression
     parms = expression.scan(/^(o|c|!\*|!|\*)?(.*)$/).first
     add_filter field, (parms[0] || "="), [parms[1] || ""]
+  end
+
+  # Add multiple filters using +add_filter+
+  def add_filters(fields, operators, values)
+    fields.each do |field|
+      add_filter(field, operators[field], values[field])
+    end
   end
   
   def has_filter?(field)
@@ -265,10 +282,26 @@ class Query < ActiveRecord::Base
                             IssueCustomField.find(:all)
                            ).collect {|cf| QueryCustomFieldColumn.new(cf) }      
   end
+
+  def self.available_columns=(v)
+    self.available_columns = (v)
+  end
+  
+  def self.add_available_column(column)
+    self.available_columns << (column) if column.is_a?(QueryColumn)
+  end
   
   # Returns an array of columns that can be used to group the results
   def groupable_columns
     available_columns.select {|c| c.groupable}
+  end
+
+  # Returns a Hash of columns and the key for sorting
+  def sortable_columns
+    {'id' => "#{Issue.table_name}.id"}.merge(available_columns.inject({}) {|h, column|
+                                               h[column.name.to_s] = column.sortable
+                                               h
+                                             })
   end
   
   def columns

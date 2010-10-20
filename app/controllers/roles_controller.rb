@@ -21,16 +21,11 @@ class RolesController < ApplicationController
   before_filter :require_admin
 
   verify :method => :post, :only => [ :destroy, :move ],
-         :redirect_to => { :action => :list }
+         :redirect_to => { :action => :index }
 
   def index
-    list
-    render :action => 'list' unless request.xhr?
-  end
-
-  def list
     @role_pages, @roles = paginate :roles, :per_page => 25, :order => 'builtin, position'
-    render :action => "list", :layout => false if request.xhr?
+    render :action => "index", :layout => false if request.xhr?
   end
 
   def new
@@ -62,7 +57,7 @@ class RolesController < ApplicationController
     @role.destroy
     redirect_to :action => 'index'
   rescue
-    flash[:error] = 'This role is in use and can not be deleted.'
+    flash[:error] =  l(:error_can_not_remove_role)
     redirect_to :action => 'index'
   end
   

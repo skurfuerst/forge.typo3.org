@@ -76,7 +76,6 @@ class Changeset < ActiveRecord::Base
   def after_create
     scan_comment_for_issue_ids
   end
-  require 'pp'
   
   def scan_comment_for_issue_ids
     return if comments.blank?
@@ -151,6 +150,15 @@ class Changeset < ActiveRecord::Base
   # Strips and reencodes a commit log before insertion into the database
   def self.normalize_comments(str)
     to_utf8(str.to_s.strip)
+  end
+
+  # Creates a new Change from it's common parameters
+  def create_change(change)
+    Change.create(:changeset => self,
+                  :action => change[:action],
+                  :path => change[:path],
+                  :from_path => change[:from_path],
+                  :from_revision => change[:from_revision])
   end
   
   private

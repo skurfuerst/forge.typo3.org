@@ -11,6 +11,7 @@
 # была возможность минимальной локализации приложения на русский язык.
 
 ru:
+  direction: ltr
   date:
     formats:
       default: "%d.%m.%Y"
@@ -41,7 +42,7 @@ ru:
 
   number:
     format:
-      separator: "."
+      separator: ","
       delimiter: " "
       precision: 3
 
@@ -64,7 +65,7 @@ ru:
     human:
       format:
         delimiter: ""
-        precision: 1
+        precision: 2
       # Rails 2.2
       # storage_units: [байт, КБ, МБ, ГБ, ТБ]
 
@@ -138,8 +139,10 @@ ru:
         many:  "больше {{count}} лет"
         other: "больше {{count}} лет"
       almost_x_years:
-        one:   "almost 1 year"
-        other: "almost {{count}} years"
+        one:   "почти 1 год"
+        few:   "почти {{count}} года"
+        many:  "почти {{count}} лет"
+        other: "почти {{count}} года"
     prompts:
       year: "Год"
       month: "Месяц"
@@ -189,11 +192,12 @@ ru:
         equal_to: "может иметь лишь значение, равное {{count}}"
         less_than: "может иметь значение меньшее чем {{count}}"
         less_than_or_equal_to: "может иметь значение меньшее или равное {{count}}"
-        odd: "может иметь лишь четное значение"
-        even: "может иметь лишь нечетное значение"
+        odd: "может иметь лишь нечетное значение"
+        even: "может иметь лишь четное значение"
         greater_than_start_date: "должна быть позднее даты начала"
-        not_same_project: "не относятся к одному проекту"
+        not_same_project: "не относится к одному проекту"
         circular_dependency: "Такая связь приведет к циклической зависимости"
+        cant_link_an_issue_with_a_descendant: "Задача не может быть связана со своей подзадачей"
 
   support:
     array:
@@ -226,6 +230,7 @@ ru:
   button_delete: Удалить
   button_download: Загрузить
   button_edit: Редактировать
+  button_edit_associated_wikipage: "Редактировать связанную wiki-страницу: {{page_title}}"
   button_list: Список
   button_lock: Заблокировать
   button_login: Вход
@@ -252,33 +257,38 @@ ru:
   default_activity_development: Разработка
   default_doc_category_tech: Техническая документация
   default_doc_category_user: Документация пользователя
-  default_issue_status_in_progress: In Progress
-  default_issue_status_closed: Закрыт
+  default_issue_status_in_progress: В работе
+  default_issue_status_closed: Закрыта
   default_issue_status_feedback: Обратная связь
-  default_issue_status_new: Новый
+  default_issue_status_new: Новая
   default_issue_status_rejected: Отказ
-  default_issue_status_resolved: Заблокирован
+  default_issue_status_resolved: Решена
   default_priority_high: Высокий
   default_priority_immediate: Немедленный
   default_priority_low: Низкий
   default_priority_normal: Нормальный
   default_priority_urgent: Срочный
-  default_role_developper: Разработчик
+  default_role_developer: Разработчик
   default_role_manager: Менеджер
   default_role_reporter: Генератор отчетов
   default_tracker_bug: Ошибка
-  default_tracker_feature: Улучшение
+  default_tracker_feature: Изменение
   default_tracker_support: Поддержка
 
   enumeration_activities: Действия (учет времени)
   enumeration_doc_categories: Категории документов
   enumeration_issue_priorities: Приоритеты задач
-
+  
+  error_can_not_remove_role: Эта роль используется и не может быть удалена.
+  error_can_not_delete_custom_field: Невозможно удалить настраиваемое поле
+  error_can_not_delete_tracker: Этот трекер содержит задачи и не может быть удален.
   error_can_t_load_default_data: "Конфигурация по умолчанию не была загружена: {{value}}"
   error_issue_not_found_in_project: Задача не была найдена или не прикреплена к этому проекту
   error_scm_annotate: "Данные отсутствуют или не могут быть подписаны."
   error_scm_command_failed: "Ошибка доступа к хранилищу: {{value}}"
   error_scm_not_found: Хранилище не содержит записи и/или исправления.
+  error_unable_to_connect: Невозможно подключиться ({{value}})
+  error_unable_delete_issue_status: Невозможно удалить статус задачи
 
   field_account: Учетная запись
   field_activity: Деятельность
@@ -341,6 +351,7 @@ ru:
   field_onthefly: Создание пользователя на лету
   field_parent_title: Родительская страница
   field_parent: Родительский проект
+  field_parent_issue: Родительская задача
   field_password_confirmation: Подтверждение
   field_password: Пароль
   field_port: Порт
@@ -352,12 +363,14 @@ ru:
   field_role: Роль
   field_searchable: Доступно для поиска
   field_spent_on: Дата
-  field_start_date: Начало
+  field_start_date: Начата
   field_start_page: Стартовая страница
   field_status: Статус
   field_subject: Тема
   field_subproject: Подпроект
   field_summary: Сводка
+  field_text: Текстовое поле
+  field_time_entries: Затраченное время
   field_time_zone: Часовой пояс
   field_title: Название
   field_tracker: Трекер
@@ -411,7 +424,7 @@ ru:
   label_auth_source: Режим аутентификации
   label_auth_source_new: Новый режим аутентификации
   label_auth_source_plural: Режимы аутентификации
-  label_blocked_by: заблокировано
+  label_blocked_by: блокируется
   label_blocks: блокирует
   label_board: Форум
   label_board_new: Новый форум
@@ -495,7 +508,7 @@ ru:
   label_filter_add: Добавить фильтр
   label_filter_plural: Фильтры
   label_float: С плавающей точкой
-  label_follows: следующий
+  label_follows: следующая
   label_gantt: Диаграмма Ганта
   label_general: Общее
   label_generate_key: Сгенерировать ключ
@@ -568,6 +581,7 @@ ru:
   label_more: Больше
   label_my_account: Моя учетная запись
   label_my_page: Моя страница
+  label_my_page_block: Блок моей страницы
   label_my_projects: Мои проекты
   label_new: Новый
   label_new_statuses_allowed: Разрешены новые статусы
@@ -600,12 +614,14 @@ ru:
   label_planning: Планирование
   label_please_login: Пожалуйста, войдите.
   label_plugins: Модули
-  label_precedes: предшествует
+  label_precedes: предыдущая
   label_preferences: Предпочтения
   label_preview: Предварительный просмотр
   label_previous: Предыдущий
+  label_profile: Профиль
   label_project: проект
   label_project_all: Все проекты
+  label_project_copy_notifications: Отправлять уведомления по электронной почте при копировании проекта
   label_project_latest: Последние проекты
   label_project_new: Новый проект
   label_project_plural: Проекты
@@ -664,6 +680,7 @@ ru:
   label_stay_logged_in: Оставаться в системе
   label_string: Текст
   label_subproject_plural: Подпроекты
+  label_subtask_plural: Подзадачи
   label_text: Длинный текст
   label_theme: Тема
   label_this_month: этот месяц
@@ -702,24 +719,34 @@ ru:
   label_wiki_page_plural: Страницы Wiki
   label_workflow: Последовательность действий
   label_x_closed_issues_abbr:
-    zero:  0 закрыто
-    one:   1 закрыт
+    zero:  "0 закрыто"
+    one:   "1 закрыт"
+    few:   "{{count}} закрыто"
+    many:  "{{count}} закрыто"
     other: "{{count}} закрыто"
   label_x_comments:
-    zero: нет комментариев
-    one: 1 комментарий
+    zero:  "нет комментариев"
+    one:   "1 комментарий"
+    few:   "{{count}} комментария"
+    many:  "{{count}} комментариев"
     other: "{{count}} комментариев"
   label_x_open_issues_abbr:
-    zero:  0 открыто
-    one:   1 открыт
+    zero:  "0 открыто"
+    one:   "1 открыт"
+    few:   "{{count}} открыто"
+    many:  "{{count}} открыто"
     other: "{{count}} открыто"
   label_x_open_issues_abbr_on_total:
-    zero:  0 открыто / {{total}}
-    one:   1 открыт / {{total}}
+    zero:  "0 открыто / {{total}}"
+    one:   "1 открыт / {{total}}"
+    few:   "{{count}} открыто / {{total}}"
+    many:  "{{count}} открыто / {{total}}"
     other: "{{count}} открыто / {{total}}"
   label_x_projects:
-    zero:  нет проектов
-    one:   1 проект
+    zero:  "нет проектов"
+    one:   "1 проект"
+    few:   "{{count}} проекта"
+    many:  "{{count}} проектов"
     other: "{{count}} проектов"
   label_year: Год
   label_yesterday: вчера
@@ -733,7 +760,7 @@ ru:
   mail_subject_account_activation_request: "Запрос на активацию пользователя в системе {{value}}"
   mail_subject_lost_password: "Ваш {{value}} пароль"
   mail_subject_register: "Активация учетной записи {{value}}"
-  mail_subject_reminder: "{{count}} назначенных на Вас задач в ближайшие дни"
+  mail_subject_reminder: "{{count}} назначенных на Вас задач в ближайшие {{days}} дней"
 
   notice_account_activated: Ваша учетная запись активирована. Вы можете войти.
   notice_account_invalid_creditentials: Неправильное имя пользователя или пароль
@@ -749,6 +776,7 @@ ru:
   notice_email_error: "Во время отправки письма произошла ошибка ({{value}})"
   notice_email_sent: "Отправлено письмо {{value}}"
   notice_failed_to_save_issues: "Не удалось сохранить {{count}} пункт(ов) из {{total}} выбранных: {{ids}}."
+  notice_failed_to_save_members: "Не удалось сохранить участника(ов): {{errors}}."
   notice_feeds_access_key_reseted: Ваш ключ доступа RSS был перезапущен.
   notice_file_not_found: Страница, на которую Вы пытаетесь зайти, не существует или удалена.
   notice_locking_conflict: Информация обновлена другим пользователем.
@@ -781,9 +809,11 @@ ru:
   permission_edit_project: Редактирование проектов
   permission_edit_time_entries: Редактирование учета времени
   permission_edit_wiki_pages: Редактирование wiki-страниц
+  permission_export_wiki_pages: Экспорт wiki-страниц
   permission_log_time: Учет затраченного времени
   permission_view_changesets: Просмотр изменений хранилища
   permission_view_time_entries: Просмотр затраченного времени
+  permission_manage_project_activities: Управление активностью проекта
   permission_manage_boards: Управление форумами
   permission_manage_categories: Управление категориями задач
   permission_manage_documents: Управление документами
@@ -793,6 +823,7 @@ ru:
   permission_manage_news: Управление новостями
   permission_manage_public_queries: Управление общими запросами
   permission_manage_repository: Управление хранилищем
+  permission_manage_subtasks: Управление подзадачами
   permission_manage_versions: Управление версиями
   permission_manage_wiki: Управление Wiki
   permission_move_issues: Перенос задач
@@ -817,6 +848,8 @@ ru:
   project_module_repository: Хранилище
   project_module_time_tracking: Учет времени
   project_module_wiki: Wiki
+  project_module_gantt: Диаграмма Ганта
+  project_module_calendar: Календарь
 
   setting_activity_days_default: Количество дней, отображаемых в Активности
   setting_app_subtitle: Подзаголовок приложения
@@ -825,6 +858,7 @@ ru:
   setting_autofetch_changesets: Автоматически следить за изменениями хранилища
   setting_autologin: Автоматический вход
   setting_bcc_recipients: Использовать скрытые списки (bcc)
+  setting_cache_formatted_text: Кешировать форматированный текст
   setting_commit_fix_keywords: Назначение ключевых слов
   setting_commit_logs_encoding: Кодировка комментариев в хранилище
   setting_commit_ref_keywords: Ключевые слова для поиска
@@ -864,7 +898,8 @@ ru:
   status_active: активен
   status_locked: заблокирован
   status_registered: зарегистрирован
-
+  
+  text_are_you_sure_with_children: Удалить задачу и все ее подзадачи?
   text_are_you_sure: Подтвердите
   text_assign_time_entries_to_project: Прикрепить зарегистрированное время к проекту
   text_caracters_maximum: "Максимум {{count}} символов(а)."
@@ -898,7 +933,7 @@ ru:
   text_project_identifier_info: 'Допустимы строчные буквы (a-z), цифры и дефис.<br />Сохраненный идентификатор не может быть изменен.'
   text_reassign_time_entries: 'Перенести зарегистрированное время на следующую задачу:'
   text_regexp_info: напр. ^[A-Z0-9]+$
-  text_repository_usernames_mapping: "Выберите или обновите пользователя Redmine, связанного с найденными именами в журнале хранилица.\nПользователи с одинаковыми именами или email в Redmine и хранилище связываются автоматически."
+  text_repository_usernames_mapping: "Выберите или обновите пользователя Redmine, связанного с найденными именами в журнале хранилища.\nПользователи с одинаковыми именами или email в Redmine и хранилище связываются автоматически."
   text_rmagick_available: Доступно использование RMagick (опционально)
   text_select_mail_notifications: Выберите действия, на которые будет отсылаться уведомление на электронную почту.
   text_select_project_modules: 'Выберите модули, которые будут использованы в проекте:'
@@ -992,7 +1027,11 @@ ru:
   label_close_versions: Закрыть завершенные версии
   label_board_sticky: Прикреплена
   label_board_locked: Заблокирована
-  permission_export_wiki_pages: Export wiki pages
-  setting_cache_formatted_text: Cache formatted text
-  permission_manage_project_activities: Manage project activities
-  label_project_copy_notifications: Send email notifications during the project copy
+  field_principal: Глава
+  text_zoom_out: Отдалить
+  text_zoom_in: Приблизить
+  notice_unable_delete_time_entry: Невозможно удалить запись журнала.
+  label_overall_spent_time: Всего затрачено времени
+
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role

@@ -147,8 +147,9 @@ class ProjectTest < ActiveSupport::TestCase
     # make sure that the project non longer exists
     assert_raise(ActiveRecord::RecordNotFound) { Project.find(@ecookbook.id) }
     # make sure related data was removed
-    assert Member.find(:all, :conditions => ['project_id = ?', @ecookbook.id]).empty?
-    assert Board.find(:all, :conditions => ['project_id = ?', @ecookbook.id]).empty?
+    assert_nil Member.first(:conditions => {:project_id => @ecookbook.id})
+    assert_nil Board.first(:conditions => {:project_id => @ecookbook.id})
+    assert_nil Issue.first(:conditions => {:project_id => @ecookbook.id})
   end
   
   def test_move_an_orphan_project_to_a_root_project
@@ -358,6 +359,59 @@ class ProjectTest < ActiveSupport::TestCase
     parent.children.each(&:archive)
     
     assert_equal [1,2], parent.rolled_up_trackers.collect(&:id)
+  end
+
+  context "#rolled_up_versions" do
+    setup do
+      @project = Project.generate!
+      @parent_version_1 = Version.generate!(:project => @project)
+      @parent_version_2 = Version.generate!(:project => @project)
+    end
+    
+    should "include the versions for the current project" do
+      assert_same_elements [@parent_version_1, @parent_version_2], @project.rolled_up_versions
+    end
+    
+    should "include versions for a subproject" do
+      @subproject = Project.generate!
+      @subproject.set_parent!(@project)
+      @subproject_version = Version.generate!(:project => @subproject)
+
+      assert_same_elements [
+                            @parent_version_1,
+                            @parent_version_2,
+                            @subproject_version
+                           ], @project.rolled_up_versions
+    end
+    
+    should "include versions for a sub-subproject" do
+      @subproject = Project.generate!
+      @subproject.set_parent!(@project)
+      @sub_subproject = Project.generate!
+      @sub_subproject.set_parent!(@subproject)
+      @sub_subproject_version = Version.generate!(:project => @sub_subproject)
+
+      @project.reload
+
+      assert_same_elements [
+                            @parent_version_1,
+                            @parent_version_2,
+                            @sub_subproject_version
+                           ], @project.rolled_up_versions
+    end
+
+    
+    should "only check active projects" do
+      @subproject = Project.generate!
+      @subproject.set_parent!(@project)
+      @subproject_version = Version.generate!(:project => @subproject)
+      assert @subproject.archive
+
+      @project.reload
+
+      assert !@subproject.active?
+      assert_same_elements [@parent_version_1, @parent_version_2], @project.rolled_up_versions
+    end
   end
   
   def test_shared_versions_none_sharing

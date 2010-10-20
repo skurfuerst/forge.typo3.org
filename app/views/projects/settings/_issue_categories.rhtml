@@ -1,10 +1,10 @@
 <% if @project.issue_categories.any? %>
 <table class="list">
-	<thead>
+	<thead><tr>
 	<th><%= l(:label_issue_category) %></th>
 	<th><%= l(:field_assigned_to) %></th>
 	<th></th>
-	</thead>
+	</tr></thead>
 	<tbody>
 <% for category in @project.issue_categories %>
 	<% unless category.new_record? %>
@@ -24,4 +24,4 @@
 <p class="nodata"><%= l(:label_no_data) %></p>
 <% end %>
 
-<p><%= link_to_if_authorized l(:label_issue_category_new), :controller => 'projects', :action => 'add_issue_category', :id => @project %></p>
+<p><%= link_to_if_authorized l(:label_issue_category_new), :controller => 'issue_categories', :action => 'new', :project_id => @project %></p>

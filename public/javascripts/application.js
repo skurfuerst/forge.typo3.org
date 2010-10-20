@@ -52,11 +52,17 @@ function addFileField() {
     d.type = "text";
     d.name = "attachments[" + fileFieldCount + "][description]";
     d.size = 60;
+    var dLabel = new Element('label');
+    dLabel.addClassName('inline');
+    // Pulls the languge value used for Optional Description
+    dLabel.update($('attachment_description_label_content').innerHTML)
     
     p = document.getElementById("attachments_fields");
     p.appendChild(document.createElement("br"));
     p.appendChild(f);
-    p.appendChild(d);
+    p.appendChild(dLabel);
+    dLabel.appendChild(d);
+
 }
 
 function showTab(name) {
@@ -194,6 +200,18 @@ function randomKey(size) {
 	return key;
 }
 
+function observeParentIssueField(url) {
+  new Ajax.Autocompleter('issue_parent_issue_id',
+                         'parent_issue_candidates',
+                         url,
+                         { minChars: 3,
+                           frequency: 0.5,
+                           paramName: 'q',
+                           updateElement: function(value) {
+                             document.getElementById('issue_parent_issue_id').value = value.id;
+                           }});
+}
+
 /* shows and hides ajax indicator */
 Ajax.Responders.register({
     onCreate: function(){
@@ -215,4 +233,3 @@ function hideOnLoad() {
 }
 
 Event.observe(window, 'load', hideOnLoad);
-

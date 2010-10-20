@@ -1,4 +1,5 @@
 uk:
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -64,6 +65,10 @@ uk:
         other: "almost {{count}} years"
 
   number: 
+    format:
+      separator: "."
+      delimiter: ""
+      precision: 3
     human: 
       format: 
         precision: 1
@@ -111,6 +116,7 @@ uk:
         greater_than_start_date: "повинна бути пізніша за дату початку"
         not_same_project: "не відносяться до одного проекту"
         circular_dependency: "Такий зв'язок приведе до циклічної залежності"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
   actionview_instancetag_blank_option: Оберіть
   
@@ -611,7 +617,7 @@ uk:
   text_user_mail_option: "Для невибраних проектів ви отримуватимете повідомлення тільки про те, що проглядаєте або в чому берете участь (наприклад, питання автором яких ви є або які вам призначені)."
   
   default_role_manager: Менеджер
-  default_role_developper: Розробник
+  default_role_developer: Розробник
   default_role_reporter: Репортер
   звітів default_tracker_bug: Помилка
   default_tracker_feature: Властивість 
@@ -706,7 +712,7 @@ uk:
   text_subprojects_destroy_warning: "Its subproject(s): {{value}} will be also deleted."
   label_and_its_subprojects: "{{value}} and its subprojects"
   mail_body_reminder: "{{count}} issue(s) that are assigned to you are due in the next {{days}} days:"
-  mail_subject_reminder: "{{count}} issue(s) due in the next days"
+  mail_subject_reminder: "{{count}} issue(s) due in the next {{days}} days"
   text_user_wrote: "{{value}} wrote:"
   label_duplicated_by: duplicated by
   setting_enabled_scm: Enabled SCM
@@ -883,4 +889,28 @@ uk:
   permission_export_wiki_pages: Export wiki pages
   setting_cache_formatted_text: Cache formatted text
   permission_manage_project_activities: Manage project activities
+  error_unable_delete_issue_status: Unable to delete issue status
+  label_profile: Profile
+  permission_manage_subtasks: Manage subtasks
+  field_parent_issue: Parent task
+  label_subtask_plural: Subtasks
   label_project_copy_notifications: Send email notifications during the project copy
+  error_can_not_delete_custom_field: Unable to delete custom field
+  error_unable_to_connect: Unable to connect ({{value}})
+  error_can_not_remove_role: This role is in use and can not be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  field_principal: Principal
+  label_my_page_block: My page block
+  notice_failed_to_save_members: "Failed to save member(s): {{errors}}."
+  text_zoom_out: Zoom out
+  text_zoom_in: Zoom in
+  notice_unable_delete_time_entry: Unable to delete time log entry.
+  label_overall_spent_time: Overall spent time
+  field_time_entries: Log time
+  project_module_gantt: Gantt
+  project_module_calendar: Calendar
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field

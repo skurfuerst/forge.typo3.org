@@ -16,7 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 class MembersController < ApplicationController
-  before_filter :find_member, :except => [:new, :autocomplete_for_member]
+  model_object Member
+  before_filter :find_model_object, :except => [:new, :autocomplete_for_member]
+  before_filter :find_project_from_association, :except => [:new, :autocomplete_for_member]
   before_filter :find_project, :only => [:new, :autocomplete_for_member]
   before_filter :authorize
 
@@ -34,14 +36,30 @@ class MembersController < ApplicationController
       @project.members << members
     end
     respond_to do |format|
-      format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
-      format.js { 
-        render(:update) {|page| 
-          page.replace_html "tab-content-members", :partial => 'projects/settings/members'
-          page << 'hideOnLoad()'
-          members.each {|member| page.visual_effect(:highlight, "member-#{member.id}") }
+      if members.present? && members.all? {|m| m.valid? }
+
+        format.html { redirect_to :controller => 'projects', :action => 'settings', :tab => 'members', :id => @project }
+
+        format.js { 
+          render(:update) {|page| 
+            page.replace_html "tab-content-members", :partial => 'projects/settings/members'
+            page << 'hideOnLoad()'
+            members.each {|member| page.visual_effect(:highlight, "member-#{member.id}") }
+          }
         }
-      }
+      else
+
+        format.js {
+          render(:update) {|page|
+            errors = members.collect {|m|
+              m.errors.full_messages
+            }.flatten.uniq
+
+            page.alert(l(:notice_failed_to_save_members, :errors => errors.join(', ')))
+          }
+        }
+        
+      end
     end
   end
   
@@ -79,17 +97,4 @@ class MembersController < ApplicationController
     render :layout => false
   end
 
-private
-  def find_project
-    @project = Project.find(params[:id])
-  rescue ActiveRecord::RecordNotFound
-    render_404
-  end
-  
-  def find_member
-    @member = Member.find(params[:id]) 
-    @project = @member.project
-  rescue ActiveRecord::RecordNotFound
-    render_404
-  end
 end

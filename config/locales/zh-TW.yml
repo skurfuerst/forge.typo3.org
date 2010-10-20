@@ -3,6 +3,7 @@
 # See http://github.com/svenfuchs/rails-i18n/ for details.
 
 "zh-TW":
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -176,6 +177,7 @@
         greater_than_start_date: "必須在起始日期之後"
         not_same_project: "不屬於同一個專案"
         circular_dependency: "這個關聯會導致環狀相依"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
       # You can define own errors for models or model attributes.
       # The values :model, :attribute and :value are always available for interpolation.
@@ -238,26 +240,32 @@
   notice_feeds_access_key_reseted: 您的 RSS 存取金鑰已被重新設定。
   notice_api_access_key_reseted: 您的 API 存取金鑰已被重新設定。
   notice_failed_to_save_issues: " {{count}} 個項目儲存失敗（總共選取 {{total}} 個項目）： {{ids}} 。"
+  notice_failed_to_save_members: "成員儲存失敗: {{errors}}."
   notice_no_issue_selected: "未選擇任何項目！請勾選您想要編輯的項目。"
   notice_account_pending: "您的帳號已經建立，正在等待管理員的審核。"
   notice_default_data_loaded: 預設組態已載入成功。
   notice_unable_delete_version: 無法刪除版本。
+  notice_unable_delete_time_entry: 無法刪除工時記錄項目。
   notice_issue_done_ratios_updated: 項目完成百分比已更新。
 
   error_can_t_load_default_data: "無法載入預設組態： {{value}}"
-  error_scm_not_found: SCM 儲存庫中找不到這個專案或版本。
-  error_scm_command_failed: "嘗試存取儲存庫時發生錯誤： {{value}}"
+  error_scm_not_found: "在 SCM 儲存庫中找不到這個項目或版次。"
+  error_scm_command_failed: "嘗試存取 SCM 儲存庫時發生錯誤： {{value}}"
   error_scm_annotate: "SCM 儲存庫中無此項目或此項目無法被加註。"
   error_issue_not_found_in_project: '該項目不存在或不屬於此專案'
   error_no_tracker_in_project: '此專案尚未指定追蹤標籤。請檢查專案的設定資訊。'
   error_no_default_issue_status: '尚未定義項目狀態的預設值。請您前往「網站管理」->「項目狀態清單」頁面，檢查相關組態設定。'
+  error_can_not_delete_custom_field: 無法刪除自訂欄位
+  error_can_not_delete_tracker: "此追蹤標籤已包含項目，無法被刪除。"
+  error_can_not_remove_role: "此角色已被使用，無法將其刪除。"
   error_can_not_reopen_issue_on_closed_version: '指派給「已結束」版本的項目，無法再將其狀態變更為「進行中」'
   error_can_not_archive_project: 此專案無法被歸檔
   error_issue_done_ratios_not_updated: "項目完成百分比未更新。"
-  error_workflow_copy_source: '請選擇一個項目追蹤器或角色'
-  error_workflow_copy_target: '請選擇項目追蹤器或角色'
-
-  warning_attachments_not_saved: "{{count}} 個附加檔案無法儲存。"
+  error_workflow_copy_source: '請選擇一個來源項目追蹤標籤或角色'
+  error_workflow_copy_target: '請選擇一個（或多個）目的項目追蹤標籤或角色'
+  error_unable_delete_issue_status: '無法刪除項目狀態'
+  error_unable_to_connect: "無法連線至（{{value}}）"
+  warning_attachments_not_saved: "{{count}} 個附加檔案無法被儲存。"
   
   mail_subject_lost_password: 您的 Redmine 網站密碼
   mail_body_lost_password: '欲變更您的 Redmine 網站密碼, 請點選以下鏈結:'
@@ -267,7 +275,7 @@
   mail_body_account_information: 您的 Redmine 帳號資訊
   mail_subject_account_activation_request: Redmine 帳號啟用需求通知
   mail_body_account_activation_request: "有位新用戶 ({{value}}) 已經完成註冊，正等候您的審核："
-  mail_subject_reminder: "您有 {{count}} 個項目即將到期"
+  mail_subject_reminder: "您有 {{count}} 個項目即將到期 ({{days}})"
   mail_body_reminder: "{{count}} 個指派給您的項目，將於 {{days}} 天之內到期："
   mail_subject_wiki_content_added: "'{{page}}' wiki 頁面已被新增"
   mail_body_wiki_content_added: "The '{{page}}' wiki 頁面已被 {{author}} 新增。"
@@ -312,6 +320,7 @@
   field_priority: 優先權
   field_fixed_version: 版本
   field_user: 用戶
+  field_principal: 原則
   field_role: 角色
   field_homepage: 網站首頁
   field_is_public: 公開
@@ -357,6 +366,7 @@
   field_redirect_existing_links: 重新導向現有連結
   field_estimated_hours: 預估工時
   field_column_names: 欄位
+  field_time_entries: 耗用工時
   field_time_zone: 時區
   field_searchable: 可用做搜尋條件
   field_default_value: 預設值
@@ -368,6 +378,10 @@
   field_content: 內容
   field_group_by: 結果分組方式
   field_sharing: 共用
+  field_parent_issue: 父工作項目
+  field_member_of_group: 所屬群組
+  field_assigned_to_role: 所屬角色
+  field_text: 內容文字
   
   setting_app_title: 標題
   setting_app_subtitle: 副標題
@@ -421,12 +435,14 @@
   setting_issue_done_ratio_issue_status: 依據項目狀態
   setting_start_of_week: 週的第一天
   setting_rest_api_enabled: 啟用 REST 網路服務技術（Web Service）
+  setting_cache_formatted_text: 快取已格式化文字
 
   permission_add_project: 建立專案
   permission_add_subprojects: 建立子專案
   permission_edit_project: 編輯專案
   permission_select_project_modules: 選擇專案模組
   permission_manage_members: 管理成員
+  permission_manage_project_activities: 管理專案活動
   permission_manage_versions: 管理版本
   permission_manage_categories: 管理項目分類
   permission_view_issues: 檢視項目
@@ -474,6 +490,8 @@
   permission_edit_own_messages: 編輯自己的訊息
   permission_delete_messages: 刪除訊息
   permission_delete_own_messages: 刪除自己的訊息
+  permission_export_wiki_pages: 匯出 wiki 頁面
+  permission_manage_subtasks: 管理子工作項目
   
   project_module_issue_tracking: 項目追蹤
   project_module_time_tracking: 工時追蹤
@@ -483,6 +501,8 @@
   project_module_wiki: Wiki
   project_module_repository: 版本控管
   project_module_boards: 討論區
+  project_module_calendar: 日曆
+  project_module_gantt: 甘特圖
   
   label_user: 用戶
   label_user_plural: 用戶清單
@@ -500,7 +520,7 @@
   label_issue: 項目
   label_issue_new: 建立新項目
   label_issue_plural: 項目清單
-  label_issue_view_all: 檢視全部的項目
+  label_issue_view_all: 檢視所有項目
   label_issues_by: "項目按 {{value}} 分組顯示"
   label_issue_added: 項目已新增
   label_issue_updated: 項目已更新
@@ -540,6 +560,7 @@
   label_my_page: 帳戶首頁
   label_my_account: 我的帳戶
   label_my_projects: 我的專案
+  label_my_page_block: 帳戶首頁區塊
   label_administration: 網站管理
   label_login: 登入
   label_logout: 登出
@@ -549,7 +570,7 @@
   label_last_login: 最近一次連線
   label_registered_on: 註冊於
   label_activity: 活動
-  label_overall_activity: 檢視整體活動
+  label_overall_activity: 整體活動
   label_user_activity: "{{value}} 的活動"
   label_new: 建立新的...
   label_logged_as: 目前登入
@@ -589,7 +610,6 @@
   label_news_latest: 最近新聞
   label_news_view_all: 檢視全部的新聞
   label_news_added: 新聞已新增
-  label_change_log: 變更記錄
   label_settings: 設定
   label_overview: 概觀
   label_version: 版本
@@ -718,6 +738,7 @@
   label_changes_details: 所有變更的明細
   label_issue_tracking: 項目追蹤
   label_spent_time: 耗用工時
+  label_overall_spent_time: 整體耗用工時
   label_f_hour: "{{value}} 小時"
   label_f_hour_plural: "{{value}} 小時"
   label_time_tracking: 工時追蹤
@@ -834,11 +855,14 @@
   label_copy_source: 來源
   label_copy_target: 目的地
   label_copy_same_as_target: 與目的地相同
-  label_display_used_statuses_only: 僅顯示此追蹤器所使用之狀態
+  label_display_used_statuses_only: 僅顯示此追蹤標籤所使用之狀態
   label_api_access_key: API 存取金鑰
   label_missing_api_access_key: 找不到 API 存取金鑰
   label_api_access_key_created_on: "API 存取金鑰建立於 {{value}} 之前"
-  
+  label_profile: 配置概況
+  label_subtask_plural: 子工作項目
+  label_project_copy_notifications: 在複製專案的過程中，傳送通知郵件
+
   button_login: 登入
   button_submit: 送出
   button_save: 儲存
@@ -849,6 +873,7 @@
   button_create_and_continue: 繼續建立
   button_test: 測試
   button_edit: 編輯
+  button_edit_associated_wikipage: "編輯相關 Wiki 頁面: {{page_title}}"
   button_add: 新增
   button_change: 修改
   button_apply: 套用
@@ -900,6 +925,7 @@
   text_subprojects_destroy_warning: "下列子專案： {{value}} 將一併被刪除。"
   text_workflow_edit: 選擇角色與追蹤標籤以設定其工作流程
   text_are_you_sure: 確定執行？
+  text_are_you_sure_with_children: "確定刪除此工作項目及其子項目？"
   text_journal_changed: "{{label}} 從 {{old}} 變更為 {{new}}"
   text_journal_set_to: "{{label}} 設定為 {{value}}"
   text_journal_deleted: "{{label}} 已刪除 ({{old}})"
@@ -923,7 +949,7 @@
   text_issue_category_destroy_assignments: 移除這些項目的分類
   text_issue_category_reassign_to: 重新指派這些項目至其它分類
   text_user_mail_option: "對於那些未被選擇的專案，將只會接收到您正在觀察中，或是參與中的項目通知。（「參與中的項目」包含您建立的或是指派給您的項目）"
-  text_no_configuration_data: "角色、追蹤器、項目狀態與流程尚未被設定完成。\n強烈建議您先載入預設的設定，然後修改成您想要的設定。"
+  text_no_configuration_data: "角色、追蹤標籤、項目狀態與流程尚未被設定完成。\n強烈建議您先載入預設的組態。將預設組態載入之後，您可再變更其中之值。"
   text_load_default_configuration: 載入預設組態
   text_status_changed_by_changeset: "已套用至變更集 {{value}}."
   text_issues_destroy_confirmation: '確定刪除已選擇的項目？'
@@ -948,9 +974,11 @@
   text_wiki_page_destroy_children: "刪除所有子頁面及其延伸頁面"
   text_wiki_page_reassign_children: "重新指定所有的子頁面之父頁面至此頁面"
   text_own_membership_delete_confirmation: "您在專案中，所擁有的部分或全部權限即將被移除，在這之後可能無法再次編輯此專案。\n您確定要繼續執行這個動作？"
+  text_zoom_in: 放大
+  text_zoom_out: 縮小
   
   default_role_manager: 管理人員
-  default_role_developper: 開發人員
+  default_role_developer: 開發人員
   default_role_reporter: 報告人員
   default_tracker_bug: 臭蟲
   default_tracker_feature: 功能
@@ -975,7 +1003,4 @@
   enumeration_doc_categories: 文件分類
   enumeration_activities: 活動 (時間追蹤)
   enumeration_system_activity: 系統活動
-  permission_export_wiki_pages: Export wiki pages
-  setting_cache_formatted_text: Cache formatted text
-  permission_manage_project_activities: Manage project activities
-  label_project_copy_notifications: Send email notifications during the project copy
+

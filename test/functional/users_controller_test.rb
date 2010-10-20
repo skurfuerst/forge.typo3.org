@@ -34,21 +34,6 @@ class UsersControllerTest < ActionController::TestCase
     @request.session[:user_id] = 1 # admin
   end
   
-  def test_index_routing
-    assert_generates(
-      '/users',
-      :controller => 'users', :action => 'index'
-    )
-    assert_routing(
-      {:method => :get, :path => '/users'},
-      :controller => 'users', :action => 'index'
-    )
-    assert_recognizes(
-      {:controller => 'users', :action => 'index'},
-      {:method => :get, :path => '/users'}
-    )
-  end
-  
   def test_index
     get :index
     assert_response :success
@@ -74,17 +59,6 @@ class UsersControllerTest < ActionController::TestCase
     assert_equal 'John', users.first.firstname
   end
   
-  def test_show_routing
-    assert_routing(
-      {:method => :get, :path => '/users/44'},
-      :controller => 'users', :action => 'show', :id => '44'
-    )
-    assert_recognizes(
-      {:controller => 'users', :action => 'show', :id => '44'},
-      {:method => :get, :path => '/users/44'}
-    )
-  end
-  
   def test_show
     @request.session[:user_id] = nil
     get :show, :id => 2
@@ -103,12 +77,11 @@ class UsersControllerTest < ActionController::TestCase
     get :show, :id => 2
     assert_response :success
   end
-  
 
   def test_show_inactive
+    @request.session[:user_id] = nil
     get :show, :id => 5
     assert_response 404
-    assert_nil assigns(:user)
   end
   
   def test_show_should_not_reveal_users_with_no_visible_activity_or_project
@@ -116,39 +89,24 @@ class UsersControllerTest < ActionController::TestCase
     get :show, :id => 9
     assert_response 404
   end
+  
+  def test_show_inactive_by_admin
+    @request.session[:user_id] = 1
+    get :show, :id => 5
+    assert_response 200
+    assert_not_nil assigns(:user)
+  end
+  
+  def test_show_displays_memberships_based_on_project_visibility
+    @request.session[:user_id] = 1
+    get :show, :id => 2
+    assert_response :success
+    memberships = assigns(:memberships)
+    assert_not_nil memberships
+    project_ids = memberships.map(&:project_id)
+    assert project_ids.include?(2) #private project admin can see
+  end
 
-  def test_add_routing
-    assert_routing(
-      {:method => :get, :path => '/users/new'},
-      :controller => 'users', :action => 'add'
-    )
-    assert_recognizes(
-    #TODO: remove this and replace with POST to collection, need to modify form
-      {:controller => 'users', :action => 'add'},
-      {:method => :post, :path => '/users/new'}
-    )
-    assert_recognizes(
-      {:controller => 'users', :action => 'add'},
-      {:method => :post, :path => '/users'}
-    )
-  end
-  
-  def test_edit_routing
-    assert_routing(
-      {:method => :get, :path => '/users/444/edit'},
-      :controller => 'users', :action => 'edit', :id => '444'
-    )
-    assert_routing(
-      {:method => :get, :path => '/users/222/edit/membership'},
-      :controller => 'users', :action => 'edit', :id => '222', :tab => 'membership'
-    )
-    assert_recognizes(
-    #TODO: use PUT on user_path, modify form
-      {:controller => 'users', :action => 'edit', :id => '444'},
-      {:method => :post, :path => '/users/444/edit'}
-    )
-  end
-  
   def test_edit
     ActionMailer::Base.deliveries.clear
     post :edit, :id => 2, :user => {:firstname => 'Changed'}
@@ -185,19 +143,17 @@ class UsersControllerTest < ActionController::TestCase
     assert_equal [u.mail], mail.bcc
     assert mail.body.include?('newpass')
   end
-  
-  def test_add_membership_routing
-    assert_routing(
-      {:method => :post, :path => '/users/123/memberships'},
-      :controller => 'users', :action => 'edit_membership', :id => '123'
-    )
-  end
-  
-  def test_edit_membership_routing
-    assert_routing(
-      {:method => :post, :path => '/users/123/memberships/55'},
-      :controller => 'users', :action => 'edit_membership', :id => '123', :membership_id => '55'
-    )
+
+  test "POST :edit with a password change to an AuthSource user switching to Internal authentication" do
+    # Configure as auth source
+    u = User.find(2)
+    u.auth_source = AuthSource.find(1)
+    u.save!
+
+    post :edit, :id => u.id, :user => {:auth_source_id => ''}, :password => 'newpass', :password_confirmation => 'newpass'
+
+    assert_equal nil, u.reload.auth_source
+    assert_equal User.hash_password('newpass'), u.reload.hashed_password
   end
   
   def test_edit_membership
@@ -205,14 +161,6 @@ class UsersControllerTest < ActionController::TestCase
                            :membership => { :role_ids => [2]}
     assert_redirected_to :action => 'edit', :id => '2', :tab => 'memberships'
     assert_equal [2], Member.find(1).role_ids
-  end
-  
-  def test_destroy_membership
-    assert_routing(
-    #TODO: use DELETE method on user_membership_path, modify form
-      {:method => :post, :path => '/users/567/memberships/12/destroy'},
-      :controller => 'users', :action => 'destroy_membership', :id => '567', :membership_id => '12'
-    )
   end
   
   def test_destroy_membership

@@ -65,7 +65,7 @@ class Project < ActiveRecord::Base
   acts_as_customizable
   acts_as_searchable :columns => ['name', 'identifier', 'description'], :project_key => 'id', :permission => nil
   acts_as_event :title => Proc.new {|o| "#{l(:label_project)}: #{o.name}"},
-                :url => Proc.new {|o| {:controller => 'projects', :action => 'show', :id => o.id}},
+                :url => Proc.new {|o| {:controller => 'projects', :action => 'show', :id => o}},
                 :author => nil
 
   attr_protected :status, :enabled_module_names
@@ -354,6 +354,13 @@ class Project < ActiveRecord::Base
       end
     end
   end
+
+  # Returns a scope of the Versions on subprojects
+  def rolled_up_versions
+    @rolled_up_versions ||=
+      Version.scoped(:include => :project,
+                     :conditions => ["#{Project.table_name}.lft >= ? AND #{Project.table_name}.rgt <= ? AND #{Project.table_name}.status = #{STATUS_ACTIVE}", lft, rgt])
+  end
   
   # Returns a scope of the Versions used by the project
   def shared_versions
@@ -423,7 +430,15 @@ class Project < ActiveRecord::Base
   def short_description(length = 255)
     description.gsub(/^(.{#{length}}[^\n\r]*).*$/m, '\1...').strip if description
   end
-  
+
+  def css_classes
+    s = 'project'
+    s << ' root' if root?
+    s << ' child' if child?
+    s << (leaf? ? ' leaf' : ' parent')
+    s
+  end
+
   # Return true if this project is allowed to do the specified action.
   # action can be:
   # * a parameter-like Hash (eg. :controller => 'projects', :action => 'edit')
@@ -451,6 +466,15 @@ class Project < ActiveRecord::Base
     else
       enabled_modules.clear
     end
+  end
+
+  # Returns an array of projects that are in this project's hierarchy
+  #
+  # Example: parents, children, siblings
+  def hierarchy
+    parents = project.self_and_ancestors || []
+    descendants = project.descendants || []
+    project_hierarchy = parents | descendants # Set union
   end
   
   # Returns an auto-generated project identifier based on the last identifier used
@@ -575,9 +599,12 @@ class Project < ActiveRecord::Base
     # value.  Used to map the two togeather for issue relations.
     issues_map = {}
     
-    project.issues.each do |issue|
+    # Get issues sorted by root_id, lft so that parent issues
+    # get copied before their children
+    project.issues.find(:all, :order => 'root_id, lft').each do |issue|
       new_issue = Issue.new
       new_issue.copy_from(issue)
+      new_issue.project = self
       # Reassign fixed_versions by name, since names are unique per
       # project and the versions for self are not yet saved
       if issue.fixed_version
@@ -588,6 +615,13 @@ class Project < ActiveRecord::Base
       if issue.category
         new_issue.category = self.issue_categories.select {|c| c.name == issue.category.name}.first
       end
+      # Parent issue
+      if issue.parent_id
+        if copied_parent = issues_map[issue.parent_id]
+          new_issue.parent_issue_id = copied_parent.id
+        end
+      end
+      
       self.issues << new_issue
       issues_map[issue.id] = new_issue
     end
@@ -657,7 +691,7 @@ class Project < ActiveRecord::Base
   
   def allowed_permissions
     @allowed_permissions ||= begin
-      module_names = enabled_modules.collect {|m| m.name}
+      module_names = enabled_modules.all(:select => :name).collect {|m| m.name}
       Redmine::AccessControl.modules_permissions(module_names).collect {|p| p.name}
     end
   end

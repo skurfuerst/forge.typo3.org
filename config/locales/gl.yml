@@ -45,6 +45,7 @@ gl:
           tb: "TB"
   
   
+  direction: ltr
   date:
     formats:
       default:  "%e/%m/%Y"
@@ -149,6 +150,7 @@ gl:
         greater_than_start_date: "debe ser posterior á data de comezo"
         not_same_project: "non pertence ao mesmo proxecto"
         circular_dependency: "Esta relación podería crear unha dependencia circular"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
   actionview_instancetag_blank_option: Por favor seleccione
   
@@ -205,7 +207,7 @@ gl:
   default_priority_low: Baixa
   default_priority_normal: Normal
   default_priority_urgent: Urxente
-  default_role_developper: Desenvolvedor
+  default_role_developer: Desenvolvedor
   default_role_manager: Xefe de proxecto
   default_role_reporter: Informador
   default_tracker_bug: Erros
@@ -639,7 +641,7 @@ gl:
   mail_subject_account_activation_request: "Petición de activación de conta {{value}}"
   mail_subject_lost_password: "O teu contrasinal de {{value}}"
   mail_subject_register: "Activación da conta de {{value}}"
-  mail_subject_reminder: "{{count}} petición(s) rematarán nos próximos días"
+  mail_subject_reminder: "{{count}} petición(s) rematarán nos próximos {{days}} días"
   notice_account_activated: A súa conta foi activada. Xa pode conectarse.
   notice_account_invalid_creditentials: Usuario ou contrasinal inválido.
   notice_account_lost_email_sent: Enviouse un correo con instrucións para elixir un novo contrasinal.
@@ -907,4 +909,29 @@ gl:
   permission_export_wiki_pages: Export wiki pages
   setting_cache_formatted_text: Cache formatted text
   permission_manage_project_activities: Manage project activities
+  error_unable_delete_issue_status: Unable to delete issue status
+  label_profile: Profile
+  permission_manage_subtasks: Manage subtasks
+  field_parent_issue: Parent task
+  label_subtask_plural: Subtasks
   label_project_copy_notifications: Send email notifications during the project copy
+  error_can_not_delete_custom_field: Unable to delete custom field
+  error_unable_to_connect: Unable to connect ({{value}})
+  error_can_not_remove_role: This role is in use and can not be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  field_principal: Principal
+  label_my_page_block: My page block
+  notice_failed_to_save_members: "Failed to save member(s): {{errors}}."
+  text_zoom_out: Zoom out
+  text_zoom_in: Zoom in
+  notice_unable_delete_time_entry: Unable to delete time log entry.
+  label_overall_spent_time: Overall spent time
+  field_time_entries: Log time
+  project_module_gantt: Gantt
+  project_module_calendar: Calendar
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field
+

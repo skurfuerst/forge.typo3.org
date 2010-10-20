@@ -4,6 +4,7 @@
 # by Yonghwan SO(please insert your email), last update at 2009-09-11
 # last update at 2010-01-23 by Kihyun Yoon
 ko:
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -172,6 +173,7 @@ ko:
         greater_than_start_date: "는 시작날짜보다 커야 합니다"
         not_same_project: "는 같은 프로젝트에 속해 있지 않습니다"
         circular_dependency: "이 관계는 순환 의존관계를 만들 수 있습니다"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
   actionview_instancetag_blank_option: 선택하세요
   
@@ -228,7 +230,7 @@ ko:
   mail_subject_account_activation_request: "{{value}} 계정 활성화 요청"
   mail_body_account_activation_request: "새 사용자({{value}})가 등록되었습니다. 관리자님의 승인을 기다리고 있습니다.:"
   mail_body_reminder: "당신이 맡고 있는 일감 {{count}}개의 완료 기한이 {{days}}일 후 입니다."
-  mail_subject_reminder: "내일이 만기인 일감 {{count}}개"
+  mail_subject_reminder: "내일이 만기인 일감 {{count}}개 ({{days}})"
   mail_subject_wiki_content_added: "위키페이지 '{{page}}'이(가) 추가되었습니다."
   mail_subject_wiki_content_updated: "'위키페이지 {{page}}'이(가) 수정되었습니다."
   mail_body_wiki_content_added: "{{author}}이(가) 위키페이지 '{{page}}'을(를) 추가하였습니다."
@@ -852,7 +854,7 @@ ko:
   text_wiki_page_reassign_children: 하위 페이지를 이 페이지 아래로 지정
   
   default_role_manager: 관리자
-  default_role_developper: 개발자
+  default_role_developer: 개발자
   default_role_reporter: 보고자
   default_tracker_bug: 결함
   default_tracker_feature: 새기능
@@ -942,9 +944,33 @@ ko:
     권한들 일부 또는 전부를 막 삭제하려고 하고 있습니다. 그렇게 되면 이 프로젝트를 더이상 수정할 수 없게 됩니다.
     계속하시겠습니까?
   label_close_versions: 완료된 버전 닫기
-  label_board_sticky: Sticky
-  label_board_locked: Locked
-  permission_export_wiki_pages: Export wiki pages
-  setting_cache_formatted_text: Cache formatted text
-  permission_manage_project_activities: Manage project activities
-  label_project_copy_notifications: Send email notifications during the project copy
+  label_board_sticky: 붙박이
+  label_board_locked: 잠금
+  permission_export_wiki_pages: 위키 페이지 내보내기
+  setting_cache_formatted_text: 형식을 가진 텍스트 빠른 임시 기억
+  permission_manage_project_activities: 프로젝트 작업내역 관리
+  error_unable_delete_issue_status: 일감 상태를 지울 수 없습니다.
+  label_profile: 사용자정보
+  permission_manage_subtasks: 하위 일감 관리
+  field_parent_issue: 상위 일감
+  label_subtask_plural: 하위 일감
+  label_project_copy_notifications: 프로젝트 복사 중에 이메일 알림 보내기
+  error_can_not_delete_custom_field: 사용자 정의 필드를 삭제할 수 없습니다.
+  error_unable_to_connect: 연결할 수 없습니다(({{value}})
+  error_can_not_remove_role: 이 역할은 현재 사용 중이이서 삭제할 수 없습니다.
+  error_can_not_delete_tracker: 이 유형의 일감들이 있에서 삭제할 수 없습니다.
+  field_principal: Principal
+  label_my_page_block: My page block
+  notice_failed_to_save_members: "Failed to save member(s): {{errors}}."
+  text_zoom_out: 더 작게
+  text_zoom_in: 더 크게
+  notice_unable_delete_time_entry: 시간 기록 항목을 삭제할 수 없습니다.
+  label_overall_spent_time: 총 소요시간
+  field_time_entries: 기록된 시간
+  project_module_gantt: Gantt 챠트
+  project_module_calendar: 달력
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field

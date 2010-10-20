@@ -1,6 +1,6 @@
 <div class="contextual">
 	<% if User.current.allowed_to?(:add_subprojects, @project) %>
-		<%= link_to l(:label_subproject_new), {:controller => 'projects', :action => 'add', :parent_id => @project}, :class => 'icon icon-add' %>
+		<%= link_to l(:label_subproject_new), {:controller => 'projects', :action => 'new', :parent_id => @project}, :class => 'icon icon-add' %>
 	<% end %>
 </div>
 
@@ -37,10 +37,10 @@
     <p>
     	<%= link_to l(:label_issue_view_all), :controller => 'issues', :action => 'index', :project_id => @project, :set_filter => 1 %>
 	    <% if User.current.allowed_to?(:view_calendar, @project, :global => true) %>
-				| <%= link_to(l(:label_calendar), :controller => 'issues', :action => 'calendar', :project_id => @project) %>
+				| <%= link_to(l(:label_calendar), :controller => 'calendars', :action => 'show', :project_id => @project) %>
 			<% end %>
 			<% if User.current.allowed_to?(:view_gantt, @project, :global => true) %>
-				| <%= link_to(l(:label_gantt), :controller => 'issues', :action => 'gantt', :project_id => @project) %>
+				| <%= link_to(l(:label_gantt), :controller => 'gantts', :action => 'show', :project_id => @project) %>
 			<% end %>
 		</p>
   </div>
@@ -67,6 +67,7 @@
 </div>
 
 <div class="splitcontentright project-listing">
+ <!-- START MEMBER BOX; alternative, use  render :partial => 'members_box' -->
   <% if @users_by_role.any? %>
            <div class="box project-member-container">
                    <h3 class="icon22 icon22-users"><%=l(:label_member_plural)%></h3>
@@ -125,7 +126,7 @@
 <% end %>
 
 <% content_for :header_tags do %>
-<%= auto_discovery_link_tag(:atom, {:action => 'activity', :id => @project, :format => 'atom', :key => User.current.rss_key}) %>
+<%= auto_discovery_link_tag(:atom, {:controller => 'activities', :action => 'index', :id => @project, :format => 'atom', :key => User.current.rss_key}) %>
 <% end %>
 
 <% html_title(l(:label_overview)) -%>

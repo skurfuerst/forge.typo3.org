@@ -20,6 +20,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class IssueTest < ActiveSupport::TestCase
   fixtures :projects, :users, :members, :member_roles, :roles,
            :trackers, :projects_trackers,
+           :enabled_modules,
            :versions,
            :issue_statuses, :issue_categories, :issue_relations, :workflows, 
            :enumerations,
@@ -328,7 +329,7 @@ class IssueTest < ActiveSupport::TestCase
   
   def test_move_to_another_project_with_same_category
     issue = Issue.find(1)
-    assert issue.move_to(Project.find(2))
+    assert issue.move_to_project(Project.find(2))
     issue.reload
     assert_equal 2, issue.project_id
     # Category changes
@@ -339,7 +340,7 @@ class IssueTest < ActiveSupport::TestCase
   
   def test_move_to_another_project_without_same_category
     issue = Issue.find(2)
-    assert issue.move_to(Project.find(2))
+    assert issue.move_to_project(Project.find(2))
     issue.reload
     assert_equal 2, issue.project_id
     # Category cleared
@@ -349,7 +350,7 @@ class IssueTest < ActiveSupport::TestCase
   def test_move_to_another_project_should_clear_fixed_version_when_not_shared
     issue = Issue.find(1)
     issue.update_attribute(:fixed_version_id, 1)
-    assert issue.move_to(Project.find(2))
+    assert issue.move_to_project(Project.find(2))
     issue.reload
     assert_equal 2, issue.project_id
     # Cleared fixed_version
@@ -359,7 +360,7 @@ class IssueTest < ActiveSupport::TestCase
   def test_move_to_another_project_should_keep_fixed_version_when_shared_with_the_target_project
     issue = Issue.find(1)
     issue.update_attribute(:fixed_version_id, 4)
-    assert issue.move_to(Project.find(5))
+    assert issue.move_to_project(Project.find(5))
     issue.reload
     assert_equal 5, issue.project_id
     # Keep fixed_version
@@ -369,7 +370,7 @@ class IssueTest < ActiveSupport::TestCase
   def test_move_to_another_project_should_clear_fixed_version_when_not_shared_with_the_target_project
     issue = Issue.find(1)
     issue.update_attribute(:fixed_version_id, 1)
-    assert issue.move_to(Project.find(5))
+    assert issue.move_to_project(Project.find(5))
     issue.reload
     assert_equal 5, issue.project_id
     # Cleared fixed_version
@@ -379,7 +380,7 @@ class IssueTest < ActiveSupport::TestCase
   def test_move_to_another_project_should_keep_fixed_version_when_shared_systemwide
     issue = Issue.find(1)
     issue.update_attribute(:fixed_version_id, 7)
-    assert issue.move_to(Project.find(2))
+    assert issue.move_to_project(Project.find(2))
     issue.reload
     assert_equal 2, issue.project_id
     # Keep fixed_version
@@ -391,7 +392,7 @@ class IssueTest < ActiveSupport::TestCase
     target = Project.find(2)
     target.tracker_ids = [3]
     target.save
-    assert_equal false, issue.move_to(target)
+    assert_equal false, issue.move_to_project(target)
     issue.reload
     assert_equal 1, issue.project_id
   end
@@ -400,7 +401,7 @@ class IssueTest < ActiveSupport::TestCase
     issue = Issue.find(1)
     copy = nil
     assert_difference 'Issue.count' do
-      copy = issue.move_to(issue.project, nil, :copy => true)
+      copy = issue.move_to_project(issue.project, nil, :copy => true)
     end
     assert_kind_of Issue, copy
     assert_equal issue.project, copy.project
@@ -411,8 +412,9 @@ class IssueTest < ActiveSupport::TestCase
     issue = Issue.find(1)
     copy = nil
     assert_difference 'Issue.count' do
-      copy = issue.move_to(Project.find(3), Tracker.find(2), :copy => true)
+      copy = issue.move_to_project(Project.find(3), Tracker.find(2), :copy => true)
     end
+    copy.reload
     assert_kind_of Issue, copy
     assert_equal Project.find(3), copy.project
     assert_equal Tracker.find(2), copy.tracker
@@ -420,7 +422,7 @@ class IssueTest < ActiveSupport::TestCase
     assert_nil copy.custom_value_for(2)
   end
 
-  context "#move_to" do
+  context "#move_to_project" do
     context "as a copy" do
       setup do
         @issue = Issue.find(1)
@@ -428,24 +430,24 @@ class IssueTest < ActiveSupport::TestCase
       end
 
       should "allow assigned_to changes" do
-        @copy = @issue.move_to(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:assigned_to_id => 3}})
+        @copy = @issue.move_to_project(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:assigned_to_id => 3}})
         assert_equal 3, @copy.assigned_to_id
       end
 
       should "allow status changes" do
-        @copy = @issue.move_to(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:status_id => 2}})
+        @copy = @issue.move_to_project(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:status_id => 2}})
         assert_equal 2, @copy.status_id
       end
 
       should "allow start date changes" do
         date = Date.today
-        @copy = @issue.move_to(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:start_date => date}})
+        @copy = @issue.move_to_project(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:start_date => date}})
         assert_equal date, @copy.start_date
       end
 
       should "allow due date changes" do
         date = Date.today
-        @copy = @issue.move_to(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:due_date => date}})
+        @copy = @issue.move_to_project(Project.find(3), Tracker.find(2), {:copy => true, :attributes => {:due_date => date}})
 
         assert_equal date, @copy.due_date
       end
@@ -456,7 +458,7 @@ class IssueTest < ActiveSupport::TestCase
     issue = Issue.find(12)
     assert issue.recipients.include?(issue.author.mail)
     # move the issue to a private project
-    copy  = issue.move_to(Project.find(5), Tracker.find(2), :copy => true)
+    copy  = issue.move_to_project(Project.find(5), Tracker.find(2), :copy => true)
     # author is not a member of project anymore
     assert !copy.recipients.include?(copy.author.mail)
   end
@@ -539,12 +541,39 @@ class IssueTest < ActiveSupport::TestCase
     end
     assert ActionMailer::Base.deliveries.empty?
   end
+  
+  def test_saving_twice_should_not_duplicate_journal_details
+    i = Issue.find(:first)
+    i.init_journal(User.find(2), 'Some notes')
+    # initial changes
+    i.subject = 'New subject'
+    i.done_ratio = i.done_ratio + 10
+    assert_difference 'Journal.count' do
+      assert i.save
+    end
+    # 1 more change
+    i.priority = IssuePriority.find(:first, :conditions => ["id <> ?", i.priority_id])
+    assert_no_difference 'Journal.count' do
+      assert_difference 'JournalDetail.count', 1 do
+        i.save
+      end
+    end
+    # no more change
+    assert_no_difference 'Journal.count' do
+      assert_no_difference 'JournalDetail.count' do
+        i.save
+      end
+    end
+  end
 
   context "#done_ratio" do
     setup do
       @issue = Issue.find(1)
       @issue_status = IssueStatus.find(1)
       @issue_status.update_attribute(:default_done_ratio, 50)
+      @issue2 = Issue.find(2)
+      @issue_status2 = IssueStatus.find(2)
+      @issue_status2.update_attribute(:default_done_ratio, 0)
     end
     
     context "with Setting.issue_done_ratio using the issue_field" do
@@ -554,6 +583,7 @@ class IssueTest < ActiveSupport::TestCase
       
       should "read the issue's field" do
         assert_equal 0, @issue.done_ratio
+        assert_equal 30, @issue2.done_ratio
       end
     end
 
@@ -564,6 +594,7 @@ class IssueTest < ActiveSupport::TestCase
       
       should "read the Issue Status's default done ratio" do
         assert_equal 50, @issue.done_ratio
+        assert_equal 0, @issue2.done_ratio
       end
     end
   end
@@ -573,6 +604,9 @@ class IssueTest < ActiveSupport::TestCase
       @issue = Issue.find(1)
       @issue_status = IssueStatus.find(1)
       @issue_status.update_attribute(:default_done_ratio, 50)
+      @issue2 = Issue.find(2)
+      @issue_status2 = IssueStatus.find(2)
+      @issue_status2.update_attribute(:default_done_ratio, 0)
     end
     
     context "with Setting.issue_done_ratio using the issue_field" do
@@ -582,8 +616,10 @@ class IssueTest < ActiveSupport::TestCase
       
       should "not change the issue" do
         @issue.update_done_ratio_from_issue_status
+        @issue2.update_done_ratio_from_issue_status
 
-        assert_equal 0, @issue.done_ratio
+        assert_equal 0, @issue.read_attribute(:done_ratio)
+        assert_equal 30, @issue2.read_attribute(:done_ratio)
       end
     end
 
@@ -592,13 +628,58 @@ class IssueTest < ActiveSupport::TestCase
         Setting.issue_done_ratio = 'issue_status'
       end
       
-      should "not change the issue's done ratio" do
+      should "change the issue's done ratio" do
         @issue.update_done_ratio_from_issue_status
+        @issue2.update_done_ratio_from_issue_status
 
-        assert_equal 50, @issue.done_ratio
+        assert_equal 50, @issue.read_attribute(:done_ratio)
+        assert_equal 0, @issue2.read_attribute(:done_ratio)
       end
     end
   end
+
+  test "#by_tracker" do
+    groups = Issue.by_tracker(Project.find(1))
+    assert_equal 3, groups.size
+    assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_version" do
+    groups = Issue.by_version(Project.find(1))
+    assert_equal 3, groups.size
+    assert_equal 3, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_priority" do
+    groups = Issue.by_priority(Project.find(1))
+    assert_equal 4, groups.size
+    assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_category" do
+    groups = Issue.by_category(Project.find(1))
+    assert_equal 2, groups.size
+    assert_equal 3, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_assigned_to" do
+    groups = Issue.by_assigned_to(Project.find(1))
+    assert_equal 2, groups.size
+    assert_equal 2, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_author" do
+    groups = Issue.by_author(Project.find(1))
+    assert_equal 4, groups.size
+    assert_equal 7, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+
+  test "#by_subproject" do
+    groups = Issue.by_subproject(Project.find(1))
+    assert_equal 2, groups.size
+    assert_equal 5, groups.inject(0) {|sum, group| sum + group['total'].to_i}
+  end
+  
   
   context ".allowed_target_projects_on_move" do
     should "return all active projects for admin users" do
@@ -614,5 +695,25 @@ class IssueTest < ActiveSupport::TestCase
       Role.non_member.add_permission! :move_issues
       assert_equal Project.active.count, Issue.allowed_target_projects_on_move.size
     end
+  end
+
+  def test_recently_updated_with_limit_scopes
+    #should return the last updated issue
+    assert_equal 1, Issue.recently_updated.with_limit(1).length
+    assert_equal Issue.find(:first, :order => "updated_on DESC"), Issue.recently_updated.with_limit(1).first
+  end
+
+  def test_on_active_projects_scope
+    assert Project.find(2).archive
+    
+    before = Issue.on_active_project.length
+    # test inclusion to results
+    issue = Issue.generate_for_project!(Project.find(1), :tracker => Project.find(2).trackers.first)
+    assert_equal before + 1, Issue.on_active_project.length
+
+    # Move to an archived project
+    issue.project = Project.find(2)
+    assert issue.save
+    assert_equal before, Issue.on_active_project.length
   end
 end

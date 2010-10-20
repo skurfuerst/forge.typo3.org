@@ -3,6 +3,7 @@
 # AR error messages are basically taken from Ruby-GetText-Package. Thanks to Masao Mutoh.
 
 ja:
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -143,6 +144,7 @@ ja:
         greater_than_start_date: "を開始日より後にしてください"
         not_same_project: "同じプロジェクトに属していません"
         circular_dependency: "この関係では、循環依存になります"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
   actionview_instancetag_blank_option: 選んでください
   
@@ -178,10 +180,12 @@ ja:
   notice_feeds_access_key_reseted: RSSアクセスキーを初期化しました。
   notice_api_access_key_reseted: APIアクセスキーを初期化しました。
   notice_failed_to_save_issues: "{{total}}件のうち{{count}}件のチケットが保存できませんでした: {{ids}}."
+  notice_failed_to_save_members: "メンバーの保存に失敗しました: {{errors}}."
   notice_no_issue_selected: "チケットが選択されていません! 更新対象のチケットを選択してください。"
   notice_account_pending: アカウントは作成済みで、管理者の承認待ちです。
   notice_default_data_loaded: デフォルト設定をロードしました。
   notice_unable_delete_version: バージョンを削除できません
+  notice_unable_delete_time_entry: 作業時間を削除できません
   notice_issue_done_ratios_updated: チケットの進捗が更新されました。
   
   error_can_t_load_default_data: "デフォルト設定がロードできませんでした: {{value}}"
@@ -189,13 +193,18 @@ ja:
   error_scm_command_failed: "リポジトリへアクセスしようとしてエラーになりました: {{value}}"
   error_scm_annotate: "エントリが存在しない、もしくはアノテートできません。"
   error_issue_not_found_in_project: 'チケットが見つかりません、もしくはこのプロジェクトに属していません'
+  error_unable_delete_issue_status: "チケットのステータスを削除できませんでした。"
   error_no_tracker_in_project: 'このプロジェクトにはトラッカーが登録されていません。プロジェクト設定を確認してください。'
   error_no_default_issue_status: 'デフォルトのチケットステータスが定義されていません。設定を確認してください（管理→チケットのステータス）。'
+  error_can_not_delete_custom_field: 'カスタムフィールドを削除できません。'
+  error_unable_to_connect: "接続できません。 ({{value}})"
+  error_can_not_remove_role: 'このロールは使用されています。削除できません。'
   error_can_not_reopen_issue_on_closed_version: '終了したバージョンにひも付けされたチケットの再オープンはできません。'
   error_can_not_archive_project: このプロジェクトは書庫に保存できません
   error_issue_done_ratios_not_updated: "チケットの進捗が更新できません。"
   error_workflow_copy_source: 'コピー元となるトラッカーまたはロールを選択してください'
   error_workflow_copy_target: 'コピー先となるトラッカーとロールを選択してください'
+  error_can_not_delete_tracker: 'このトラッカーは使用されています。削除できません。'
   
   warning_attachments_not_saved: "{{count}}個の添付ファイルが保存できませんでした。"
   
@@ -207,7 +216,7 @@ ja:
   mail_body_account_information: アカウント情報
   mail_subject_account_activation_request: "{{value}} アカウントの承認要求"
   mail_body_account_activation_request: "新しいユーザ {{value}} が登録されました。このアカウントはあなたの承認待ちです："
-  mail_subject_reminder: "{{count}}件のチケットが期日間近です"
+  mail_subject_reminder: "{{count}}件のチケットの期日が{{days}}日以内に到来します"
   mail_body_reminder: "{{count}}件の担当チケットの期日が{{days}}日以内に到来します:"
   mail_subject_wiki_content_added: "Wikiページ {{page}} が追加されました"
   mail_body_wiki_content_added: "{{author}} によってWikiページ {{page}} が追加されました。"
@@ -252,6 +261,7 @@ ja:
   field_priority: 優先度
   field_fixed_version: 対象バージョン
   field_user: ユーザ
+  field_principal: 主体
   field_role: ロール
   field_homepage: ホームページ
   field_is_public: 公開
@@ -296,6 +306,7 @@ ja:
   field_redirect_existing_links: 既存のリンクをリダイレクトする
   field_estimated_hours: 予定工数
   field_column_names: 項目
+  field_time_entries: 時間を記録
   field_time_zone: タイムゾーン
   field_searchable: 検索条件に設定可能とする
   field_default_value: デフォルト値
@@ -307,6 +318,10 @@ ja:
   field_content: 内容
   field_group_by: グループ条件
   field_sharing: 共有
+  field_parent_issue: 親チケット
+  field_member_of_group: 担当者のグループ
+  field_assigned_to_role: 担当者のロール
+  field_text: テキスト
   
   setting_app_title: アプリケーションのタイトル
   setting_app_subtitle: アプリケーションのサブタイトル
@@ -389,6 +404,7 @@ ja:
   permission_view_time_entries: 変更履歴の閲覧
   permission_edit_time_entries: 変更履歴の編集
   permission_edit_own_time_entries: 自身が記入した変更履歴の編集
+  permission_manage_project_activities: 作業分類 (時間トラッキング) の管理
   permission_manage_news: ニュースの管理
   permission_comment_news: ニュースへのコメント
   permission_manage_documents: 文書の管理
@@ -415,6 +431,7 @@ ja:
   permission_edit_own_messages: 自身が記入したメッセージの編集
   permission_delete_messages: メッセージの削除
   permission_delete_own_messages: 自身が記入したメッセージの削除
+  permission_manage_subtasks: 子チケットの管理
   
   project_module_issue_tracking: チケットトラッキング
   project_module_time_tracking: 時間トラッキング
@@ -424,11 +441,14 @@ ja:
   project_module_wiki: Wiki
   project_module_repository: リポジトリ
   project_module_boards: フォーラム
+  project_module_gantt: ガントチャート
+  project_module_calendar: カレンダー
   
   label_user: ユーザ
   label_user_plural: ユーザ
   label_user_new: 新しいユーザ
   label_user_anonymous: 匿名ユーザ
+  label_profile: プロフィール
   label_project: プロジェクト
   label_project_new: 新しいプロジェクト
   label_project_plural: プロジェクト
@@ -481,6 +501,7 @@ ja:
   label_my_page: マイページ
   label_my_account: 個人設定
   label_my_projects: マイプロジェクト
+  label_my_page_block: マイページパーツ
   label_administration: 管理
   label_login: ログイン
   label_logout: ログアウト
@@ -658,6 +679,7 @@ ja:
   label_changes_details: 全変更の詳細
   label_issue_tracking: チケットトラッキング
   label_spent_time: 作業時間の記録
+  label_overall_spent_time: 全ての作業時間の記録
   label_f_hour: "{{value}}時間"
   label_f_hour_plural: "{{value}}時間"
   label_time_tracking: 時間トラッキング
@@ -728,9 +750,9 @@ ja:
   label_theme: テーマ
   label_default: 既定
   label_search_titles_only: タイトルのみ
-  label_user_mail_option_all: "参加しているプロジェクトの全てのチケット"
-  label_user_mail_option_selected: "選択したプロジェクト..."
-  label_user_mail_option_none: "ウォッチまたは関係しているチケットのみ"
+  label_user_mail_option_all: "参加しているプロジェクトの全ての通知"
+  label_user_mail_option_selected: "選択したプロジェクトの全ての通知..."
+  label_user_mail_option_none: "ウォッチまたは関係している事柄のみ"
   label_user_mail_no_self_notified: 自分自身による変更の通知は不要
   label_registration_activation_by_email: メールでアカウントを有効化
   label_registration_manual_activation: 手動でアカウントを有効化
@@ -778,6 +800,8 @@ ja:
   label_api_access_key: APIアクセスキー
   label_missing_api_access_key: APIアクセスキーが見つかりません
   label_api_access_key_created_on: "APIアクセスキーは{{value}}前に作成されました"
+  label_subtask_plural: 子チケット
+  label_project_copy_notifications: コピーしたチケットのメール通知を送信する
   
   button_login: ログイン
   button_submit: 変更
@@ -789,6 +813,7 @@ ja:
   button_create_and_continue: 連続作成
   button_test: テスト
   button_edit: 編集
+  button_edit_associated_wikipage: "関連するWikiページを編集: {{page_title}}"
   button_add: 追加
   button_change: 変更
   button_apply: 適用
@@ -840,6 +865,7 @@ ja:
   text_subprojects_destroy_warning: "サブプロジェクト {{value}} も削除されます。"
   text_workflow_edit: ワークフローを編集するロールとトラッカーを選んでください
   text_are_you_sure: よろしいですか？
+  text_are_you_sure_with_children: チケットとその子チケット全てを削除しますか?
   text_journal_changed: "{{label}} を {{old}} から {{new}} に変更"
   text_journal_set_to: "{{label}} を {{value}} にセット"
   text_journal_deleted: "{{label}} を削除 ({{old}})"
@@ -862,7 +888,7 @@ ja:
   text_issue_category_destroy_question: "{{count}}件のチケットがこのカテゴリに割り当てられています。"
   text_issue_category_destroy_assignments: カテゴリの割り当てを削除する
   text_issue_category_reassign_to: チケットをこのカテゴリに再割り当てする
-  text_user_mail_option: "未選択のプロジェクトでは、ウォッチまたは関係しているチケット(例: 自分が報告者もしくは担当者であるチケット)のみメールが送信されます。"
+  text_user_mail_option: "未選択のプロジェクトでは、ウォッチまたは関係している事柄(例: 自分が報告者もしくは担当者であるチケット)のみメールが送信されます。"
   text_no_configuration_data: "ロール、トラッカー、チケットのステータス、ワークフローがまだ設定されていません。\nデフォルト設定のロードを強くお勧めします。ロードした後、それを修正することができます。"
   text_load_default_configuration: デフォルト設定をロード
   text_status_changed_by_changeset: "更新履歴 {{value}} で適用されました。"
@@ -888,9 +914,11 @@ ja:
   text_wiki_page_destroy_children: "配下の子孫ページも削除する"
   text_wiki_page_reassign_children: "子ページを次の親ページの配下に移動する"
   text_own_membership_delete_confirmation: "いくつかまたはすべての権限をあなた自身から剥奪しようとしているため、このプロジェクトを編集できなくなるかもしれません。\n本当に続けてもよろしいですか？"
+  text_zoom_in: 拡大
+  text_zoom_out: 縮小
   
   default_role_manager: 管理者
-  default_role_developper: 開発者
+  default_role_developer: 開発者
   default_role_reporter: 報告者
   default_tracker_bug: バグ
   default_tracker_feature: 機能
@@ -915,5 +943,3 @@ ja:
   enumeration_doc_categories: 文書カテゴリ
   enumeration_activities: 作業分類 (時間トラッキング)
   enumeration_system_activity: システム作業分類
-  permission_manage_project_activities: Manage project activities
-  label_project_copy_notifications: Send email notifications during the project copy

@@ -33,6 +33,7 @@ pl:
           gb: "GB"
           tb: "TB"
 
+  direction: ltr
   date:
     formats:
       default: "%Y-%m-%d"
@@ -128,6 +129,7 @@ pl:
         greater_than_start_date: "musi być większe niż początkowa data"
         not_same_project: "nie należy do tego samego projektu"
         circular_dependency: "Ta relacja może wytworzyć kołową zależność"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
       
   support:
     array:
@@ -192,7 +194,7 @@ pl:
   default_priority_low: Niski
   default_priority_normal: Normalny
   default_priority_urgent: Pilny
-  default_role_developper: Programista
+  default_role_developer: Programista
   default_role_manager: Kierownik
   default_role_reporter: Wprowadzajacy
   default_tracker_bug: Błąd
@@ -640,7 +642,7 @@ pl:
   mail_subject_account_activation_request: "Zapytanie aktywacyjne konta {{value}}"
   mail_subject_lost_password: "Twoje hasło do {{value}}"
   mail_subject_register: "Aktywacja konta w {{value}}"
-  mail_subject_reminder: "Uwaga na terminy, masz zagadnienia do obsłużenia w ciągu następnych {{count}} dni!"
+  mail_subject_reminder: "Uwaga na terminy, masz zagadnienia do obsłużenia w ciągu następnych {{count}} dni! ({{days}})"
   notice_account_activated: Twoje konto zostało aktywowane. Możesz się zalogować.
   notice_account_invalid_creditentials: Zły użytkownik lub hasło
   notice_account_lost_email_sent: Email z instrukcjami zmiany hasła został wysłany do Ciebie.
@@ -911,5 +913,29 @@ pl:
   label_board_locked: Zamknięta
   permission_export_wiki_pages: Eksport stron wiki
   permission_manage_project_activities: Zarządzanie aktywnościami projektu
-  setting_cache_formatted_text: Cache formatted text
-  label_project_copy_notifications: Send email notifications during the project copy
+  setting_cache_formatted_text: Buforuj sformatowany tekst
+  error_unable_delete_issue_status: Nie można usunąć statusu zagadnienia
+  label_profile: Profil
+  permission_manage_subtasks: Zarządzanie podzagadnieniami
+  field_parent_issue: Zagadnienie nadrzędne
+  label_subtask_plural: Podzagadnienia
+  label_project_copy_notifications: Wyślij powiadomienia mailowe przy kopiowaniu projektu
+  error_can_not_delete_custom_field: Nie można usunąć tego pola
+  error_unable_to_connect: Nie można połączyć ({{value}})
+  error_can_not_remove_role: Ta rola przypisana jest niektórym użytkownikom i nie może zostać usunięta.
+  error_can_not_delete_tracker: Ten typ przypisany jest do części zagadnień i nie może zostać usunięty.
+  field_principal: Przełożony
+  label_my_page_block: Elementy
+  notice_failed_to_save_members: "Nie można zapisać uczestników: {{errors}}."
+  text_zoom_out: Zmniejsz czcionkę
+  text_zoom_in: Powiększ czcionkę
+  notice_unable_delete_time_entry: Nie można usunąć wpisu z dziennika.
+  label_overall_spent_time: Przepracowany czas
+  field_time_entries: Dziennik
+  project_module_gantt: Diagram Gantta
+  project_module_calendar: Kalendarz
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field

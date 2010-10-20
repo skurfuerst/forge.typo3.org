@@ -33,7 +33,7 @@ class WikiController < ApplicationController
     page_title = params[:page]
     @page = @wiki.find_or_new_page(page_title)
     if @page.new_record?
-      if User.current.allowed_to?(:edit_wiki_pages, @project)
+      if User.current.allowed_to?(:edit_wiki_pages, @project) && editable?
         edit
         render :action => 'edit'
       else
@@ -47,15 +47,17 @@ class WikiController < ApplicationController
       return
     end
     @content = @page.content_for_version(params[:version])
-    if params[:format] == 'html'
-      export = render_to_string :action => 'export', :layout => false
-      send_data(export, :type => 'text/html', :filename => "#{@page.title}.html")
-      return
-    elsif params[:format] == 'txt'
-      send_data(@content.text, :type => 'text/plain', :filename => "#{@page.title}.txt")
-      return
+    if User.current.allowed_to?(:export_wiki_pages, @project)
+      if params[:format] == 'html'
+        export = render_to_string :action => 'export', :layout => false
+        send_data(export, :type => 'text/html', :filename => "#{@page.title}.html")
+        return
+      elsif params[:format] == 'txt'
+        send_data(@content.text, :type => 'text/plain', :filename => "#{@page.title}.txt")
+        return
+      end
     end
-	@editable = editable?
+    @editable = editable?
     render :action => 'show'
   end
   
@@ -74,6 +76,8 @@ class WikiController < ApplicationController
       @content.version = @page.content.version
     else
       if !@page.new_record? && @content.text == params[:content][:text]
+        attachments = Attachment.attach_files(@page, params[:attachments])
+        render_attachment_warning_if_needed(@page)
         # don't save if text wasn't changed
         redirect_to :action => 'index', :id => @project, :page => @page.title
         return
@@ -84,6 +88,8 @@ class WikiController < ApplicationController
       @content.author = User.current
       # if page is new @page.save will also save content, but not if page isn't a new record
       if (@page.new_record? ? @page.save : @content.save)
+        attachments = Attachment.attach_files(@page, params[:attachments])
+        render_attachment_warning_if_needed(@page)
         call_hook(:controller_wiki_edit_after_save, { :params => params, :page => @page})
         redirect_to :action => 'index', :id => @project, :page => @page.title
       end
@@ -177,9 +183,13 @@ class WikiController < ApplicationController
       @pages_by_parent_id = @pages.group_by(&:parent_id)
     # export wiki to a single html file
     when 'export'
-      @pages = @wiki.pages.find :all, :order => 'title'
-      export = render_to_string :action => 'export_multiple', :layout => false
-      send_data(export, :type => 'text/html', :filename => "wiki.html")
+      if User.current.allowed_to?(:export_wiki_pages, @project)
+        @pages = @wiki.pages.find :all, :order => 'title'
+        export = render_to_string :action => 'export_multiple', :layout => false
+        send_data(export, :type => 'text/html', :filename => "wiki.html")
+      else
+        redirect_to :action => 'index', :id => @project, :page => nil
+      end
       return      
     else
       # requested special page doesn't exist, redirect to default page
@@ -203,7 +213,8 @@ class WikiController < ApplicationController
 
   def add_attachment
     return render_403 unless editable?
-    attach_files(@page, params[:attachments])
+    attachments = Attachment.attach_files(@page, params[:attachments])
+    render_attachment_warning_if_needed(@page)
     redirect_to :action => 'index', :page => @page.title
   end
 

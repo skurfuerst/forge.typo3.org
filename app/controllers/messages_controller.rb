@@ -29,10 +29,24 @@ class MessagesController < ApplicationController
   helper :attachments
   include AttachmentsHelper   
 
+  REPLIES_PER_PAGE = 25 unless const_defined?(:REPLIES_PER_PAGE)
+  
   # Show a topic and its replies
   def show
-    @replies = @topic.children.find(:all, :include => [:author, :attachments, {:board => :project}])
-    @replies.reverse! if User.current.wants_comments_in_reverse_order?
+    page = params[:page]
+    # Find the page of the requested reply
+    if params[:r] && page.nil?
+      offset = @topic.children.count(:conditions => ["#{Message.table_name}.id < ?", params[:r].to_i])
+      page = 1 + offset / REPLIES_PER_PAGE
+    end
+    
+    @reply_count = @topic.children.count
+    @reply_pages = Paginator.new self, @reply_count, REPLIES_PER_PAGE, page
+    @replies =  @topic.children.find(:all, :include => [:author, :attachments, {:board => :project}],
+                                           :order => "#{Message.table_name}.created_on ASC",
+                                           :limit => @reply_pages.items_per_page,
+                                           :offset => @reply_pages.current.offset)
+    
     @reply = Message.new(:subject => "RE: #{@message.subject}")
     render :action => "show", :layout => false if request.xhr?
   end
@@ -48,7 +62,8 @@ class MessagesController < ApplicationController
     end
     if request.post? && @message.save
       call_hook(:controller_messages_new_after_save, { :params => params, :message => @message})
-      attach_files(@message, params[:attachments])
+      attachments = Attachment.attach_files(@message, params[:attachments])
+      render_attachment_warning_if_needed(@message)
       redirect_to :action => 'show', :id => @message
     end
   end
@@ -61,9 +76,10 @@ class MessagesController < ApplicationController
     @topic.children << @reply
     if !@reply.new_record?
       call_hook(:controller_messages_reply_after_save, { :params => params, :message => @reply})
-      attach_files(@reply, params[:attachments])
+      attachments = Attachment.attach_files(@reply, params[:attachments])
+      render_attachment_warning_if_needed(@reply)
     end
-    redirect_to :action => 'show', :id => @topic
+    redirect_to :action => 'show', :id => @topic, :r => @reply
   end
 
   # Edit a message
@@ -74,10 +90,11 @@ class MessagesController < ApplicationController
       @message.sticky = params[:message]['sticky']
     end
     if request.post? && @message.update_attributes(params[:message])
-      attach_files(@message, params[:attachments])
+      attachments = Attachment.attach_files(@message, params[:attachments])
+      render_attachment_warning_if_needed(@message)
       flash[:notice] = l(:notice_successful_update)
       @message.reload
-      redirect_to :action => 'show', :board_id => @message.board, :id => @message.root
+      redirect_to :action => 'show', :board_id => @message.board, :id => @message.root, :r => (@message.parent_id && @message.id)
     end
   end
   
@@ -87,7 +104,7 @@ class MessagesController < ApplicationController
     @message.destroy
     redirect_to @message.parent.nil? ?
       { :controller => 'boards', :action => 'show', :project_id => @project, :id => @board } :
-      { :action => 'show', :id => @message.parent }
+      { :action => 'show', :id => @message.parent, :r => @message }
   end
   
   def quote

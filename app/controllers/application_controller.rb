@@ -22,6 +22,7 @@ class ApplicationController < ActionController::Base
   include Redmine::I18n
 
   layout 'base'
+  exempt_from_layout 'builder'
   
   # Remove broken cookie after upgrade from 0.8.x (#4292)
   # See https://rails.lighthouseapp.com/projects/8994/tickets/3360
@@ -45,7 +46,7 @@ class ApplicationController < ActionController::Base
   include Redmine::MenuManager::MenuController
   helper Redmine::MenuManager::MenuHelper
   
-  REDMINE_SUPPORTED_SCM.each do |scm|
+  Redmine::Scm::Base.all.each do |scm|
     require_dependency "repository/#{scm.underscore}"
   end
 
@@ -70,8 +71,8 @@ class ApplicationController < ActionController::Base
     elsif params[:format] == 'atom' && params[:key] && accept_key_auth_actions.include?(params[:action])
       # RSS key authentication does not start a session
       User.find_by_rss_key(params[:key])
-    elsif Setting.rest_api_enabled? && ['xml', 'json'].include?(params[:format]) && accept_key_auth_actions.include?(params[:action])
-      if params[:key].present?
+    elsif Setting.rest_api_enabled? && ['xml', 'json'].include?(params[:format])
+      if params[:key].present? && accept_key_auth_actions.include?(params[:action])
         # Use API key
         User.find_by_api_key(params[:key])
       else
@@ -128,8 +129,9 @@ class ApplicationController < ActionController::Base
       respond_to do |format|
         format.html { redirect_to :controller => "account", :action => "login", :back_url => url }
         format.atom { redirect_to :controller => "account", :action => "login", :back_url => url }
-        format.xml { head :unauthorized }
-        format.json { head :unauthorized }
+        format.xml  { head :unauthorized, 'WWW-Authenticate' => 'Basic realm="Redmine API"' }
+        format.js   { head :unauthorized, 'WWW-Authenticate' => 'Basic realm="Redmine API"' }
+        format.json { head :unauthorized, 'WWW-Authenticate' => 'Basic realm="Redmine API"' }
       end
       return false
     end
@@ -159,6 +161,62 @@ class ApplicationController < ActionController::Base
   def authorize_global(ctrl = params[:controller], action = params[:action], global = true)
     authorize(ctrl, action, global)
   end
+
+  # Find project of id params[:id]
+  def find_project
+    @project = Project.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
+  # Find a project based on params[:project_id]
+  # TODO: some subclasses override this, see about merging their logic
+  def find_optional_project
+    @project = Project.find(params[:project_id]) unless params[:project_id].blank?
+    allowed = User.current.allowed_to?({:controller => params[:controller], :action => params[:action]}, @project, :global => true)
+    allowed ? true : deny_access
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
+  # Finds and sets @project based on @object.project
+  def find_project_from_association
+    render_404 unless @object.present?
+    
+    @project = @object.project
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
+  def find_model_object
+    model = self.class.read_inheritable_attribute('model_object')
+    if model
+      @object = model.find(params[:id])
+      self.instance_variable_set('@' + controller_name.singularize, @object) if @object
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
+
+  def self.model_object(model)
+    write_inheritable_attribute('model_object', model)
+  end
+
+  # Filter for bulk issue operations
+  def find_issues
+    @issues = Issue.find_all_by_id(params[:id] || params[:ids])
+    raise ActiveRecord::RecordNotFound if @issues.empty?
+    projects = @issues.collect(&:project).compact.uniq
+    if projects.size == 1
+      @project = projects.first
+    else
+      # TODO: let users bulk edit/move/destroy issues from different projects
+      render_error 'Can not bulk edit/move/destroy issues from different projects'
+      return false
+    end
+  rescue ActiveRecord::RecordNotFound
+    render_404
+  end
   
   # make sure that the user is a member of the project (or admin) if project is private
   # used as a before_filter for actions that do not require any particular permission on the project
@@ -174,6 +232,10 @@ class ApplicationController < ActionController::Base
       render_404
       false
     end
+  end
+
+  def back_url
+    params[:back_url] || request.env['HTTP_REFERER']
   end
 
   def redirect_back_or_default(default)
@@ -195,21 +257,51 @@ class ApplicationController < ActionController::Base
   
   def render_403
     @project = nil
-    render :template => "common/403", :layout => (request.xhr? ? false : 'base'), :status => 403
+    respond_to do |format|
+      format.html { render :template => "common/403", :layout => use_layout, :status => 403 }
+      format.atom { head 403 }
+      format.xml { head 403 }
+      format.js { head 403 }
+      format.json { head 403 }
+    end
     return false
   end
     
   def render_404
-    render :template => "common/404", :layout => !request.xhr?, :status => 404
+    respond_to do |format|
+      format.html { render :template => "common/404", :layout => use_layout, :status => 404 }
+      format.atom { head 404 }
+      format.xml { head 404 }
+      format.js { head 404 }
+      format.json { head 404 }
+    end
     return false
   end
   
   def render_error(msg)
-    flash.now[:error] = msg
-    render :text => '', :layout => !request.xhr?, :status => 500
+    respond_to do |format|
+      format.html { 
+        flash.now[:error] = msg
+        render :text => '', :layout => use_layout, :status => 500
+      }
+      format.atom { head 500 }
+      format.xml { head 500 }
+      format.js { head 500 }
+      format.json { head 500 }
+    end
+  end
+
+  # Picks which layout to use based on the request
+  #
+  # @return [boolean, string] name of the layout to use or false for no layout
+  def use_layout
+    request.xhr? ? false : 'base'
   end
   
   def invalid_authenticity_token
+    if api_request?
+      logger.error "Form authenticity token is missing or is invalid. API calls must include a proper Content-type header (text/xml or text/json)."
+    end
     render_error "Invalid form authenticity token."
   end
   
@@ -230,27 +322,6 @@ class ApplicationController < ActionController::Base
     self.class.read_inheritable_attribute('accept_key_auth_actions') || []
   end
   
-  # TODO: move to model
-  def attach_files(obj, attachments)
-    attached = []
-    unsaved = []
-    if attachments && attachments.is_a?(Hash)
-      attachments.each_value do |attachment|
-        file = attachment['file']
-        next unless file && file.size > 0
-        a = Attachment.create(:container => obj, 
-                              :file => file,
-                              :description => attachment['description'].to_s.strip,
-                              :author => User.current)
-        a.new_record? ? (unsaved << a) : (attached << a)
-      end
-      if unsaved.any?
-        flash[:warning] = l(:warning_attachments_not_saved, unsaved.size)
-      end
-    end
-    attached
-  end
-
   # Returns the number of objects that should be displayed
   # on the paginated list
   def per_page_option
@@ -291,4 +362,44 @@ class ApplicationController < ActionController::Base
   def filename_for_content_disposition(name)
     request.env['HTTP_USER_AGENT'] =~ %r{MSIE} ? ERB::Util.url_encode(name) : name
   end
+  
+  def api_request?
+    %w(xml json).include? params[:format]
+  end
+
+  # Renders a warning flash if obj has unsaved attachments
+  def render_attachment_warning_if_needed(obj)
+    flash[:warning] = l(:warning_attachments_not_saved, obj.unsaved_attachments.size) if obj.unsaved_attachments.present?
+  end
+
+  # Sets the `flash` notice or error based the number of issues that did not save
+  #
+  # @param [Array, Issue] issues all of the saved and unsaved Issues
+  # @param [Array, Integer] unsaved_issue_ids the issue ids that were not saved
+  def set_flash_from_bulk_issue_save(issues, unsaved_issue_ids)
+    if unsaved_issue_ids.empty?
+      flash[:notice] = l(:notice_successful_update) unless issues.empty?
+    else
+      flash[:error] = l(:notice_failed_to_save_issues,
+                        :count => unsaved_issue_ids.size,
+                        :total => issues.size,
+                        :ids => '#' + unsaved_issue_ids.join(', #'))
+    end
+  end
+
+  # Rescues an invalid query statement. Just in case...
+  def query_statement_invalid(exception)
+    logger.error "Query::StatementInvalid: #{exception.message}" if logger
+    session.delete(:query)
+    sort_clear if respond_to?(:sort_clear)
+    render_error "An error occurred while executing the query and has been logged. Please report this error to your Redmine administrator."
+  end
+
+  # Converts the errors on an ActiveRecord object into a common JSON format
+  def object_errors_to_json(object)
+    object.errors.collect do |attribute, error|
+      { attribute => error }
+    end.to_json
+  end
+  
 end

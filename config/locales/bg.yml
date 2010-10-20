@@ -1,4 +1,5 @@
 bg:
+  direction: ltr
   date:
     formats:
       # Use the strftime parameters for formats.
@@ -63,7 +64,11 @@ bg:
         one:   "almost 1 year"
         other: "almost {{count}} years"
 
-  number: 
+  number:
+    format:
+      separator: "."
+      delimiter: ""
+      precision: 3
     human: 
       format: 
         precision: 1
@@ -71,13 +76,13 @@ bg:
       storage_units: 
         format: "%n %u"
         units: 
-          kb: KB
-          tb: TB
-          gb: GB
           byte: 
             one: Byte
             other: Bytes
-          mb: 'MB'
+          kb: "KB"
+          mb: "MB"
+          gb: "GB"
+          tb: "TB"
       
 # Used in array.to_sentence.
   support:
@@ -111,6 +116,7 @@ bg:
         greater_than_start_date: "трябва да е след началната дата"
         not_same_project: "не е от същия проект"
         circular_dependency: "Тази релация ще доведе до безкрайна зависимост"
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
 
   actionview_instancetag_blank_option: Изберете
   
@@ -574,7 +580,7 @@ bg:
   text_issue_category_reassign_to: Преобвързване с категория
   
   default_role_manager: Мениджър
-  default_role_developper: Разработчик
+  default_role_developer: Разработчик
   default_role_reporter: Публикуващ
   default_tracker_bug: Бъг
   default_tracker_feature: Функционалност
@@ -704,7 +710,7 @@ bg:
   text_subprojects_destroy_warning: "Its subproject(s): {{value}} will be also deleted."
   label_and_its_subprojects: "{{value}} and its subprojects"
   mail_body_reminder: "{{count}} issue(s) that are assigned to you are due in the next {{days}} days:"
-  mail_subject_reminder: "{{count}} issue(s) due in the next days"
+  mail_subject_reminder: "{{count}} issue(s) due in the next {{days}} days"
   text_user_wrote: "{{value}} wrote:"
   label_duplicated_by: duplicated by
   setting_enabled_scm: Enabled SCM
@@ -881,4 +887,29 @@ bg:
   permission_export_wiki_pages: Export wiki pages
   setting_cache_formatted_text: Cache formatted text
   permission_manage_project_activities: Manage project activities
+  error_unable_delete_issue_status: Unable to delete issue status
+  label_profile: Profile
+  permission_manage_subtasks: Manage subtasks
+  field_parent_issue: Parent task
+  label_subtask_plural: Subtasks
   label_project_copy_notifications: Send email notifications during the project copy
+  error_can_not_delete_custom_field: Unable to delete custom field
+  error_unable_to_connect: Unable to connect ({{value}})
+  error_can_not_remove_role: This role is in use and can not be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  field_principal: Principal
+  label_my_page_block: My page block
+  notice_failed_to_save_members: "Failed to save member(s): {{errors}}."
+  text_zoom_out: Zoom out
+  text_zoom_in: Zoom in
+  notice_unable_delete_time_entry: Unable to delete time log entry.
+  label_overall_spent_time: Overall spent time
+  field_time_entries: Log time
+  project_module_gantt: Gantt
+  project_module_calendar: Calendar
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field
+

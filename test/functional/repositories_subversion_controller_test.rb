@@ -26,9 +26,6 @@ class RepositoriesSubversionControllerTest < ActionController::TestCase
            :repositories, :issues, :issue_statuses, :changesets, :changes,
            :issue_categories, :enumerations, :custom_fields, :custom_values, :trackers
 
-  # No '..' in the repository path for svn
-  REPOSITORY_PATH = RAILS_ROOT.gsub(%r{config\/\.\.}, '') + '/tmp/test/subversion_repository'
-
   def setup
     @controller = RepositoriesController.new
     @request    = ActionController::TestRequest.new
@@ -37,7 +34,7 @@ class RepositoriesSubversionControllerTest < ActionController::TestCase
     User.current = nil
   end
 
-  if File.directory?(REPOSITORY_PATH)
+  if repository_configured?('subversion')
     def test_show
       get :show, :id => 1
       assert_response :success
@@ -60,7 +57,7 @@ class RepositoriesSubversionControllerTest < ActionController::TestCase
       assert_response :success
       assert_template 'show'
       assert_not_nil assigns(:entries)
-      assert_equal ['folder', '.project', 'helloworld.c', 'textfile.txt'], assigns(:entries).collect(&:name)
+      assert_equal ['[folder_with_brackets]', 'folder', '.project', 'helloworld.c', 'textfile.txt'], assigns(:entries).collect(&:name)
       entry = assigns(:entries).detect {|e| e.name == 'helloworld.c'}
       assert_equal 'file', entry.kind
       assert_equal 'subversion_test/helloworld.c', entry.path

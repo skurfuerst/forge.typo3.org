@@ -2,17 +2,17 @@
 
 <div class="box">
 <!--[form:project]-->
-<p><%= f.text_field :name, :required => true %><br /><em><%= l(:text_caracters_maximum, 30) %></em></p>
+<p><%= f.text_field :name, :required => true, :maxlength => 30 %><br /><em><%= l(:text_caracters_maximum, 30) %></em></p>
 
 <% unless @project.allowed_parents.compact.empty? %>
 <% if User.current.admin? or User.current.project_move_permission?  %>
-    <p><label><%= l(:field_parent) %></label><%= parent_project_select_tag(@project) %></p>
+    <p><%= label(:project, :parent_id, l(:field_parent)) %><%= parent_project_select_tag(@project) %></p>
     <p><%= f.text_field :sorting, :size => 40 %></p>
 <% end %>
 <% end %>
 
 <p><%= f.text_area :description, :rows => 5, :class => 'wiki-edit' %></p>
-<p><%= f.text_field :identifier, :required => true, :disabled => @project.identifier_frozen? %>
+<p><%= f.text_field :identifier, :required => true, :disabled => @project.identifier_frozen?, :maxlength => 20 %>
 <% unless @project.identifier_frozen? %>
 <br /><em><%= l(:text_length_between, :min => 1, :max => 20) %> <%= l(:text_project_identifier_info) %></em>
 <% end %></p>

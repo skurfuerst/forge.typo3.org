@@ -31,21 +31,6 @@ class WikiControllerTest < ActionController::TestCase
     User.current = nil
   end
   
-  def test_index_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki'},
-      :controller => 'wiki', :action => 'index', :id => '567'
-    )
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/lalala'},
-      :controller => 'wiki', :action => 'index', :id => '567', :page => 'lalala'
-    )
-    assert_generates(
-      '/projects/567/wiki',
-      :controller => 'wiki', :action => 'index', :id => '567', :page => nil
-    )
-  end
-  
   def test_show_start_page
     get :index, :id => 'ecookbook'
     assert_response :success
@@ -70,6 +55,17 @@ class WikiControllerTest < ActionController::TestCase
                                                :alt => 'This is a logo' }
   end
   
+  def test_show_with_sidebar
+    page = Project.find(1).wiki.pages.new(:title => 'Sidebar')
+    page.content = WikiContent.new(:text => 'Side bar content for test_show_with_sidebar')
+    page.save!
+    
+    get :index, :id => 1, :page => 'Another_page'
+    assert_response :success
+    assert_tag :tag => 'div', :attributes => {:id => 'sidebar'},
+                              :content => /Side bar content for test_show_with_sidebar/
+  end
+  
   def test_show_unexistent_page_without_edit_right
     get :index, :id => 1, :page => 'Unexistent page'
     assert_response 404
@@ -80,17 +76,6 @@ class WikiControllerTest < ActionController::TestCase
     get :index, :id => 1, :page => 'Unexistent page'
     assert_response :success
     assert_template 'edit'
-  end
-  
-  def test_edit_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/my_page/edit'},
-      :controller => 'wiki', :action => 'edit', :id => '567', :page => 'my_page'
-    )
-    assert_recognizes(#TODO: use PUT to page path, adjust forms accordingly
-      {:controller => 'wiki', :action => 'edit', :id => '567', :page => 'my_page'},
-      {:method => :post, :path => '/projects/567/wiki/my_page/edit'}
-    )
   end
   
   def test_create_page
@@ -107,11 +92,21 @@ class WikiControllerTest < ActionController::TestCase
     assert_equal 'Created the page', page.content.comments
   end
   
-  def test_preview_routing
-    assert_routing(
-      {:method => :post, :path => '/projects/567/wiki/CookBook_documentation/preview'},
-      :controller => 'wiki', :action => 'preview', :id => '567', :page => 'CookBook_documentation'
-    )
+  def test_create_page_with_attachments
+    @request.session[:user_id] = 2
+    assert_difference 'WikiPage.count' do
+      assert_difference 'Attachment.count' do
+        post :edit, :id => 1,
+                    :page => 'New page',
+                    :content => {:comments => 'Created the page',
+                                 :text => "h1. New page\n\nThis is a new page",
+                                 :version => 0},
+                    :attachments => {'1' => {'file' => uploaded_test_file('testfile.txt', 'text/plain')}}
+      end
+    end
+    page = Project.find(1).wiki.find_page('New page')
+    assert_equal 1, page.attachments.count
+    assert_equal 'testfile.txt', page.attachments.first.filename
   end
   
   def test_preview
@@ -136,13 +131,6 @@ class WikiControllerTest < ActionController::TestCase
     assert_tag :tag => 'h1', :content => /New page/
   end
   
-  def test_history_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/1/wiki/CookBook_documentation/history'},
-      :controller => 'wiki', :action => 'history', :id => '1', :page => 'CookBook_documentation'
-    )
-  end
-  
   def test_history
     get :history, :id => 1, :page => 'CookBook_documentation'
     assert_response :success
@@ -161,26 +149,12 @@ class WikiControllerTest < ActionController::TestCase
     assert_select "input[type=submit][name=commit]", false
   end
   
-  def test_diff_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/1/wiki/CookBook_documentation/diff/2/vs/1'},
-      :controller => 'wiki', :action => 'diff', :id => '1', :page => 'CookBook_documentation', :version => '2', :version_from => '1'
-    )
-  end
-
   def test_diff
     get :diff, :id => 1, :page => 'CookBook_documentation', :version => 2, :version_from => 1
     assert_response :success
     assert_template 'diff'
     assert_tag :tag => 'span', :attributes => { :class => 'diff_in'},
                                :content => /updated/
-  end
-  
-  def test_annotate_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/1/wiki/CookBook_documentation/annotate/2'},
-      :controller => 'wiki', :action => 'annotate', :id => '1', :page => 'CookBook_documentation', :version => '2'
-    )
   end
   
   def test_annotate
@@ -195,18 +169,6 @@ class WikiControllerTest < ActionController::TestCase
     assert_tag :tag => 'tr', :child => { :tag => 'th', :attributes => {:class => 'line-num'}, :content => '2' },
                              :child => { :tag => 'td', :attributes => {:class => 'author'}, :content => /redMine Admin/ },
                              :child => { :tag => 'td', :content => /Some updated \[\[documentation\]\] here/ }
-  end
-  
-  def test_rename_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/22/wiki/ladida/rename'},
-      :controller => 'wiki', :action => 'rename', :id => '22', :page => 'ladida'
-    )
-    assert_recognizes(
-      #TODO: should be moved into a update action and use a PUT to the page URI
-      {:controller => 'wiki', :action => 'rename', :id => '22', :page => 'ladida'},
-      {:method => :post, :path => '/projects/22/wiki/ladida/rename'}
-    )
   end
   
   def test_rename_with_redirect
@@ -230,14 +192,6 @@ class WikiControllerTest < ActionController::TestCase
     wiki = Project.find(1).wiki
     # Check that there's no redirects
     assert_nil wiki.find_page('Another page')
-  end
-  
-  def test_destroy_routing
-    assert_recognizes(
-      #TODO: should use DELETE on page URI
-      {:controller => 'wiki', :action => 'destroy', :id => '22', :page => 'ladida'},
-      {:method => :post, :path => 'projects/22/wiki/ladida/destroy'}
-    )
   end
   
   def test_destroy_child
@@ -284,25 +238,6 @@ class WikiControllerTest < ActionController::TestCase
     assert_equal WikiPage.find(1), WikiPage.find_by_id(5).parent
   end
   
-  def test_special_routing
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/page_index'},
-      :controller => 'wiki', :action => 'special', :id => '567', :page => 'page_index'
-    )
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/Page_Index'},
-      :controller => 'wiki', :action => 'special', :id => '567', :page => 'Page_Index'
-    )
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/date_index'},
-      :controller => 'wiki', :action => 'special', :id => '567', :page => 'date_index'
-    )
-    assert_routing(
-      {:method => :get, :path => '/projects/567/wiki/export'},
-      :controller => 'wiki', :action => 'special', :id => '567', :page => 'export'
-    )
-  end
-  
   def test_page_index
     get :special, :id => 'ecookbook', :page => 'Page_index'
     assert_response :success
@@ -325,13 +260,6 @@ class WikiControllerTest < ActionController::TestCase
   def test_not_found
     get :index, :id => 999
     assert_response 404
-  end
-  
-  def test_protect_routing
-    assert_routing(
-      {:method => :post, :path => 'projects/22/wiki/ladida/protect'},
-      {:controller => 'wiki', :action => 'protect', :id => '22', :page => 'ladida'}
-    )
   end
   
   def test_protect_page

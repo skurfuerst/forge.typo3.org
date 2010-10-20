@@ -45,7 +45,7 @@ module Redmine
             manager.permissions = manager.setable_permissions.collect {|p| p.name}
             manager.save!
             
-            developper = Role.create! :name => l(:default_role_developper), 
+            developer = Role.create!  :name => l(:default_role_developer), 
                                       :position => 2, 
                                       :permissions => [:manage_versions, 
                                                       :manage_categories,
@@ -53,6 +53,7 @@ module Redmine
                                                       :add_issues,
                                                       :edit_issues,
                                                       :manage_issue_relations,
+                                                      :manage_subtasks,
                                                       :add_issue_notes,
                                                       :save_queries,
                                                       :view_gantt,
@@ -145,7 +146,7 @@ module Redmine
             Tracker.find(:all).each { |t|
               [new, in_progress, resolved, feedback].each { |os|
                 [in_progress, resolved, feedback, closed].each { |ns|
-                  Workflow.create!(:tracker_id => t.id, :role_id => developper.id, :old_status_id => os.id, :new_status_id => ns.id) unless os == ns
+                  Workflow.create!(:tracker_id => t.id, :role_id => developer.id, :old_status_id => os.id, :new_status_id => ns.id) unless os == ns
                 }        
               }      
             }

@@ -2,6 +2,7 @@
 # by Marko Seppä (marko.seppa@gmail.com)
 
 fi:
+  direction: ltr
   date:
     formats:
       default: "%e. %Bta %Y"
@@ -146,7 +147,7 @@ fi:
         greater_than_start_date: "tulee olla aloituspäivän jälkeinen"
         not_same_project: "ei kuulu samaan projektiin"
         circular_dependency: "Tämä suhde loisi kehän."
-
+        cant_link_an_issue_with_a_descendant: "An issue can not be linked to one of its subtasks"
   
   actionview_instancetag_blank_option: Valitse, ole hyvä
   
@@ -657,7 +658,7 @@ fi:
   text_load_default_configuration: Lataa vakioasetukset
   
   default_role_manager: Päälikkö
-  default_role_developper: Kehittäjä
+  default_role_developer: Kehittäjä
   default_role_reporter: Tarkastelija
   default_tracker_bug: Ohjelmointivirhe
   default_tracker_feature: Ominaisuus
@@ -740,7 +741,7 @@ fi:
   text_subprojects_destroy_warning: "Tämän aliprojekti(t): {{value}} tullaan myös poistamaan."
   label_and_its_subprojects: "{{value}} ja aliprojektit"
   mail_body_reminder: "{{count}} sinulle nimettyä tapahtuma(a) erääntyy {{days}} päivä sisään:"
-  mail_subject_reminder: "{{count}} tapahtuma(a) erääntyy lähipäivinä"
+  mail_subject_reminder: "{{count}} tapahtuma(a) erääntyy {{days}} lähipäivinä"
   text_user_wrote: "{{value}} kirjoitti:"
   label_duplicated_by: kopioinut
   setting_enabled_scm: Versionhallinta käytettävissä
@@ -917,4 +918,28 @@ fi:
   permission_export_wiki_pages: Export wiki pages
   setting_cache_formatted_text: Cache formatted text
   permission_manage_project_activities: Manage project activities
+  error_unable_delete_issue_status: Unable to delete issue status
+  label_profile: Profile
+  permission_manage_subtasks: Manage subtasks
+  field_parent_issue: Parent task
+  label_subtask_plural: Subtasks
   label_project_copy_notifications: Send email notifications during the project copy
+  error_can_not_delete_custom_field: Unable to delete custom field
+  error_unable_to_connect: Unable to connect ({{value}})
+  error_can_not_remove_role: This role is in use and can not be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  field_principal: Principal
+  label_my_page_block: My page block
+  notice_failed_to_save_members: "Failed to save member(s): {{errors}}."
+  text_zoom_out: Zoom out
+  text_zoom_in: Zoom in
+  notice_unable_delete_time_entry: Unable to delete time log entry.
+  label_overall_spent_time: Overall spent time
+  field_time_entries: Log time
+  project_module_gantt: Gantt
+  project_module_calendar: Calendar
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Edit associated Wiki page: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field

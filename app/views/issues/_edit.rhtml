@@ -1,10 +1,10 @@
 <% labelled_tabular_form_for :issue, @issue,
-                             :url => {:action => 'edit', :id => @issue},
+                             :url => {:action => 'update', :id => @issue},
                              :html => {:id => 'issue-form',
                                        :class => nil,
+                                       :method => :put,
                                        :multipart => true} do |f| %>
-    <%= error_messages_for 'issue' %>
-    <%= error_messages_for 'time_entry' %>
+    <%= error_messages_for 'issue', 'time_entry' %>
     <div class="box">
     <% if @edit_allowed || !@allowed_statuses.empty? %>
         <fieldset class="tabular"><legend><%= l(:label_change_properties) %>
@@ -44,7 +44,7 @@
     <%= f.hidden_field :lock_version %>
     <%= submit_tag l(:button_submit) %>
     <%= link_to_remote l(:label_preview), 
-                       { :url => { :controller => 'issues', :action => 'preview', :project_id => @project, :id => @issue },
+                       { :url => preview_issue_path(:project_id => @project, :id => @issue),
                          :method => 'post',
                          :update => 'preview',
                          :with => 'Form.serialize("issue-form")',

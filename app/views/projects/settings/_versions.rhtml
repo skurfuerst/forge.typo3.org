@@ -1,6 +1,6 @@
 <% if @project.shared_versions.any? %>
 <table class="list versions">
-	<thead>
+	<thead><tr>
     <th><%= l(:label_version) %></th>
     <th><%= l(:field_effective_date) %></th>
     <th><%= l(:field_description) %></th>
@@ -8,7 +8,7 @@
     <th><%= l(:field_sharing) %></th>
     <th><%= l(:label_wiki_page) unless @project.wiki.nil? %></th>
     <th style="width:15%"></th>
-    </thead>
+    </tr></thead>
 	<tbody>
 <% for version in @project.shared_versions.sort %>
     <tr class="version <%= cycle 'odd', 'even' %> <%=h version.status %> <%= 'shared' if version.project != @project %>">
@@ -34,8 +34,8 @@
 
 <div class="contextual">
 <% if @project.versions.any? %>
-	<%= link_to 'Close completed versions', {:controller => 'versions', :action => 'close_completed', :project_id => @project}, :method => :post %>
+	<%= link_to l(:label_close_versions), {:controller => 'versions', :action => 'close_completed', :project_id => @project}, :method => :post %>
 <% end %>
 </div>
 
-<p><%= link_to_if_authorized l(:label_version_new), :controller => 'projects', :action => 'add_version', :id => @project %></p>
+<p><%= link_to_if_authorized l(:label_version_new), :controller => 'versions', :action => 'new', :project_id => @project %></p>

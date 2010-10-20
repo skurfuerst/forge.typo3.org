@@ -1,8 +1,10 @@
 # French translations for Ruby on Rails 
 # by Christian Lescuyer (christian@flyingcoders.com)
 # contributor: Sebastien Grosjean - ZenCocoon.com
+# contributor: Thibaut Cuvelier - Developpez.com
 
 fr:
+  direction: ltr
   date:
     formats:
       default: "%d/%m/%Y"
@@ -33,14 +35,14 @@ fr:
       half_a_minute: "30 secondes"
       less_than_x_seconds:
         zero:  "moins d'une seconde"
-        one:   "moins de 1 seconde"
+        one:   "moins d'une seconde"
         other: "moins de {{count}} secondes"
       x_seconds:
         one:   "1 seconde"
         other: "{{count}} secondes"
       less_than_x_minutes:
         zero:  "moins d'une minute"
-        one:   "moins de 1 minute"
+        one:   "moins d'une minute"
         other: "moins de {{count}} minutes"
       x_minutes:
         one:   "1 minute"
@@ -49,13 +51,13 @@ fr:
         one:   "environ une heure"
         other: "environ {{count}} heures"
       x_days:
-        one:   "1 jour"
+        one:   "un jour"
         other: "{{count}} jours"
       about_x_months:
         one:   "environ un mois"
         other: "environ {{count}} mois"
       x_months:
-        one:   "1 mois"
+        one:   "un mois"
         other: "{{count}} mois"
       about_x_years:
         one:   "environ un an"
@@ -91,8 +93,8 @@ fr:
         format: "%n %u"
         units:
           byte:
-            one: "Octet"
-            other: "Octet"
+            one: "octet"
+            other: "octet"
           kb: "ko"
           mb: "Mo"
           gb: "Go"
@@ -110,8 +112,8 @@ fr:
     errors:
       template:
         header: 
-          one: "Impossible d'enregistrer {{model}}: 1 erreur"
-          other: "Impossible d'enregistrer {{model}}: {{count}} erreurs."
+          one: "Impossible d'enregistrer {{model}} : une erreur"
+          other: "Impossible d'enregistrer {{model}} : {{count}} erreurs."
         body: "Veuillez vérifier les champs suivants :"
       messages:
         inclusion: "n'est pas inclus(e) dans la liste"
@@ -136,6 +138,7 @@ fr:
         greater_than_start_date: "doit être postérieure à la date de début"
         not_same_project: "n'appartient pas au même projet"
         circular_dependency: "Cette relation créerait une dépendance circulaire"
+        cant_link_an_issue_with_a_descendant: "Une demande ne peut pas être liée à l'une de ses sous-tâches"
 
   actionview_instancetag_blank_option: Choisir
   
@@ -169,7 +172,7 @@ fr:
   notice_email_sent: "Un email a été envoyé à {{value}}"
   notice_email_error: "Erreur lors de l'envoi de l'email ({{value}})"
   notice_feeds_access_key_reseted: "Votre clé d'accès aux flux RSS a été réinitialisée."
-  notice_failed_to_save_issues: "{{count}} demande(s) sur les {{total}} sélectionnées n'ont pas pu être mise(s) à jour: {{ids}}."
+  notice_failed_to_save_issues: "{{count}} demande(s) sur les {{total}} sélectionnées n'ont pas pu être mise(s) à jour : {{ids}}."
   notice_no_issue_selected: "Aucune demande sélectionnée ! Cochez les demandes que vous voulez mettre à jour."
   notice_account_pending: "Votre compte a été créé et attend l'approbation de l'administrateur."
   notice_default_data_loaded: Paramétrage par défaut chargé avec succès.
@@ -177,9 +180,9 @@ fr:
   notice_issue_done_ratios_updated: L'avancement des demandes a été mis à jour.
   notice_api_access_key_reseted: Votre clé d'accès API a été réinitialisée.
   
-  error_can_t_load_default_data: "Une erreur s'est produite lors du chargement du paramétrage: {{value}}"
+  error_can_t_load_default_data: "Une erreur s'est produite lors du chargement du paramétrage : {{value}}"
   error_scm_not_found: "L'entrée et/ou la révision demandée n'existe pas dans le dépôt."
-  error_scm_command_failed: "Une erreur s'est produite lors de l'accès au dépôt: {{value}}"
+  error_scm_command_failed: "Une erreur s'est produite lors de l'accès au dépôt : {{value}}"
   error_scm_annotate: "L'entrée n'existe pas ou ne peut pas être annotée."
   error_issue_not_found_in_project: "La demande n'existe pas ou n'appartient pas à ce projet"
   error_can_not_reopen_issue_on_closed_version: 'Une demande assignée à une version fermée ne peut pas être réouverte'
@@ -191,15 +194,15 @@ fr:
   warning_attachments_not_saved: "{{count}} fichier(s) n'ont pas pu être sauvegardés."
   
   mail_subject_lost_password: "Votre mot de passe {{value}}"
-  mail_body_lost_password: 'Pour changer votre mot de passe, cliquez sur le lien suivant:'
+  mail_body_lost_password: 'Pour changer votre mot de passe, cliquez sur le lien suivant :'
   mail_subject_register: "Activation de votre compte {{value}}"
-  mail_body_register: 'Pour activer votre compte, cliquez sur le lien suivant:'
+  mail_body_register: 'Pour activer votre compte, cliquez sur le lien suivant :'
   mail_body_account_information_external: "Vous pouvez utiliser votre compte {{value}} pour vous connecter."
   mail_body_account_information: Paramètres de connexion de votre compte
   mail_subject_account_activation_request: "Demande d'activation d'un compte {{value}}"
-  mail_body_account_activation_request: "Un nouvel utilisateur ({{value}}) s'est inscrit. Son compte nécessite votre approbation:"
-  mail_subject_reminder: "{{count}} demande(s) arrivent à échéance"
-  mail_body_reminder: "{{count}} demande(s) qui vous sont assignées arrivent à échéance dans les {{days}} prochains jours:"
+  mail_body_account_activation_request: "Un nouvel utilisateur ({{value}}) s'est inscrit. Son compte nécessite votre approbation :"
+  mail_subject_reminder: "{{count}} demande(s) arrivent à échéance ({{days}})"
+  mail_body_reminder: "{{count}} demande(s) qui vous sont assignées arrivent à échéance dans les {{days}} prochains jours :"
   mail_subject_wiki_content_added: "Page wiki '{{page}}' ajoutée"
   mail_body_wiki_content_added: "La page wiki '{{page}}' a été ajoutée par {{author}}."
   mail_subject_wiki_content_updated: "Page wiki '{{page}}' mise à jour"
@@ -214,13 +217,13 @@ fr:
   field_is_required: Obligatoire
   field_firstname: Prénom
   field_lastname: Nom
-  field_mail: Email
+  field_mail: "Email "
   field_filename: Fichier
   field_filesize: Taille
   field_downloads: Téléchargements
   field_author: Auteur
-  field_created_on: Créé
-  field_updated_on: Mis à jour
+  field_created_on: "Créé "
+  field_updated_on: "Mis-à-jour "
   field_field_format: Format
   field_is_for_all: Pour tous les projets
   field_possible_values: Valeurs possibles
@@ -244,14 +247,14 @@ fr:
   field_fixed_version: Version cible
   field_user: Utilisateur
   field_role: Rôle
-  field_homepage: Site web
+  field_homepage: "Site web "
   field_is_public: Public
   field_parent: Sous-projet de
   field_is_in_roadmap: Demandes affichées dans la roadmap
-  field_login: Identifiant
+  field_login: "Identifiant "
   field_mail_notification: Notifications par mail
   field_admin: Administrateur
-  field_last_login_on: Dernière connexion
+  field_last_login_on: "Dernière connexion "
   field_language: Langue
   field_effective_date: Date
   field_password: Mot de passe
@@ -269,7 +272,7 @@ fr:
   field_attr_mail: Attribut Email
   field_onthefly: Création des utilisateurs à la volée
   field_start_date: Début
-  field_done_ratio: % Réalisé
+  field_done_ratio: % réalisé
   field_auth_source: Mode d'authentification
   field_hide_mail: Cacher mon adresse mail
   field_comments: Commentaire
@@ -299,6 +302,7 @@ fr:
   field_group_by: Grouper par
   field_sharing: Partage
   field_active: Actif
+  field_parent_issue: Tâche parente
   
   setting_app_title: Titre de l'application
   setting_app_subtitle: Sous-titre de l'application
@@ -408,6 +412,7 @@ fr:
   permission_delete_own_messages: Supprimer ses propres messages
   permission_export_wiki_pages: Exporter les pages
   permission_manage_project_activities: Gérer les activités
+  permission_manage_subtasks: Gérer les sous-tâches
   
   project_module_issue_tracking: Suivi des demandes
   project_module_time_tracking: Suivi du temps passé
@@ -417,6 +422,8 @@ fr:
   project_module_wiki: Wiki
   project_module_repository: Dépôt de sources
   project_module_boards: Forums de discussion
+  project_module_gantt: Gantt
+  project_module_calendar: Calendar
   
   label_user: Utilisateur
   label_user_plural: Utilisateurs
@@ -427,7 +434,7 @@ fr:
   label_project_plural: Projets
   label_x_projects:
     zero:  aucun projet
-    one:   1 projet
+    one:   un projet
     other: "{{count}} projets"
   label_project_all: Tous les projets
   label_project_latest: Derniers projets
@@ -474,14 +481,15 @@ fr:
   label_my_page: Ma page
   label_my_account: Mon compte
   label_my_projects: Mes projets
+  label_my_page_block: Ma page bloque
   label_administration: Administration
   label_login: Connexion
   label_logout: Déconnexion
   label_help: Aide
-  label_reported_issues: Demandes soumises
+  label_reported_issues: "Demandes soumises "
   label_assigned_to_me_issues: Demandes qui me sont assignées
-  label_last_login: Dernière connexion
-  label_registered_on: Inscrit le
+  label_last_login: "Dernière connexion "
+  label_registered_on: "Inscrit le "
   label_activity: Activité
   label_overall_activity: Activité globale
   label_user_activity: "Activité de {{value}}"
@@ -505,8 +513,8 @@ fr:
   label_text: Texte long
   label_attribute: Attribut
   label_attribute_plural: Attributs
-  label_download: "{{count}} Téléchargement"
-  label_download_plural: "{{count}} Téléchargements"
+  label_download: "{{count}} téléchargement"
+  label_download_plural: "{{count}} téléchargements"
   label_no_data: Aucune donnée à afficher
   label_change_status: Changer le statut
   label_history: Historique
@@ -529,7 +537,7 @@ fr:
   label_version_new: Nouvelle version
   label_version_plural: Versions
   label_confirmation: Confirmation
-  label_export_to: 'Formats disponibles:'
+  label_export_to: 'Formats disponibles :'
   label_read: Lire...
   label_public_projects: Projets publics
   label_open_issues: ouvert
@@ -572,7 +580,7 @@ fr:
   label_comment_plural: Commentaires
   label_x_comments:
     zero: aucun commentaire
-    one: 1 commentaire
+    one: un commentaire
     other: "{{count}} commentaires"
   label_comment_add: Ajouter un commentaire
   label_comment_added: Commentaire ajouté
@@ -580,7 +588,7 @@ fr:
   label_query: Rapport personnalisé
   label_query_plural: Rapports personnalisés
   label_query_new: Nouveau rapport
-  label_filter_add: Ajouter le filtre
+  label_filter_add: "Ajouter le filtre "
   label_filter_plural: Filtres
   label_equals: égal
   label_not_equals: différent
@@ -608,7 +616,7 @@ fr:
   label_browse: Parcourir
   label_modification: "{{count}} modification"
   label_modification_plural: "{{count}} modifications"
-  label_revision: Révision
+  label_revision: "Révision "
   label_revision_plural: Révisions
   label_associated_revisions: Révisions associées
   label_added: ajouté
@@ -625,10 +633,10 @@ fr:
   label_sort_lower: Descendre
   label_sort_lowest: Descendre en dernier
   label_roadmap: Roadmap
-  label_roadmap_due_in: "Echéance dans {{value}}"
+  label_roadmap_due_in: "Échéance dans {{value}}"
   label_roadmap_overdue: "En retard de {{value}}"
   label_roadmap_no_issues: Aucune demande pour cette version
-  label_search: Recherche
+  label_search: "Recherche "
   label_result_plural: Résultats
   label_all_words: Tous les mots
   label_wiki: Wiki
@@ -717,8 +725,8 @@ fr:
   label_registration_activation_by_email: activation du compte par email
   label_registration_manual_activation: activation manuelle du compte
   label_registration_automatic_activation: activation automatique du compte
-  label_display_per_page: "Par page: {{value}}"
-  label_age: Age
+  label_display_per_page: "Par page : {{value}}"
+  label_age: Âge
   label_change_properties: Changer les propriétés
   label_general: Général
   label_more: Plus
@@ -764,6 +772,8 @@ fr:
   label_missing_feeds_access_key: Clé d'accès RSS manquante
   label_close_versions: Fermer les versions terminées
   label_revision_id: Revision {{value}}
+  label_profile: Profil
+  label_subtask_plural: Sous-tâches
   label_project_copy_notifications: Envoyer les notifications durant la copie du projet
   
   button_login: Connexion
@@ -821,10 +831,10 @@ fr:
   text_select_mail_notifications: Actions pour lesquelles une notification par e-mail est envoyée
   text_regexp_info: ex. ^[A-Z0-9]+$
   text_min_max_length_info: 0 pour aucune restriction
-  text_project_destroy_confirmation: Etes-vous sûr de vouloir supprimer ce projet et toutes ses données ?
-  text_subprojects_destroy_warning: "Ses sous-projets: {{value}} seront également supprimés."
+  text_project_destroy_confirmation: Êtes-vous sûr de vouloir supprimer ce projet et toutes ses données ?
+  text_subprojects_destroy_warning: "Ses sous-projets : {{value}} seront également supprimés."
   text_workflow_edit: Sélectionner un tracker et un rôle pour éditer le workflow
-  text_are_you_sure: Etes-vous sûr ?
+  text_are_you_sure: Êtes-vous sûr ?
   text_tip_task_begin_day: tâche commençant ce jour
   text_tip_task_end_day: tâche finissant ce jour
   text_tip_task_begin_end_day: tâche commençant et finissant ce jour
@@ -847,8 +857,8 @@ fr:
   text_no_configuration_data: "Les rôles, trackers, statuts et le workflow ne sont pas encore paramétrés.\nIl est vivement recommandé de charger le paramétrage par defaut. Vous pourrez le modifier une fois chargé."
   text_load_default_configuration: Charger le paramétrage par défaut
   text_status_changed_by_changeset: "Appliqué par commit {{value}}."
-  text_issues_destroy_confirmation: 'Etes-vous sûr de vouloir supprimer le(s) demandes(s) selectionnée(s) ?'
-  text_select_project_modules: 'Selectionner les modules à activer pour ce project:'
+  text_issues_destroy_confirmation: 'Êtes-vous sûr de vouloir supprimer le(s) demandes(s) selectionnée(s) ?'
+  text_select_project_modules: 'Sélectionner les modules à activer pour ce projet :'
   text_default_administrator_account_changed: Compte administrateur par défaut changé
   text_file_repository_writable: Répertoire de stockage des fichiers accessible en écriture
   text_plugin_assets_writable: Répertoire public des plugins accessible en écriture
@@ -857,7 +867,7 @@ fr:
   text_destroy_time_entries: Supprimer les heures
   text_assign_time_entries_to_project: Reporter les heures sur le projet
   text_reassign_time_entries: 'Reporter les heures sur cette demande:'
-  text_user_wrote: "{{value}} a écrit:"
+  text_user_wrote: "{{value}} a écrit :"
   text_enumeration_destroy_question: "Cette valeur est affectée à {{count}} objets."
   text_enumeration_category_reassign_to: 'Réaffecter les objets à cette valeur:'
   text_email_delivery_not_configured: "L'envoi de mail n'est pas configuré, les notifications sont désactivées.\nConfigurez votre serveur SMTP dans config/email.yml et redémarrez l'application pour les activer."
@@ -870,14 +880,14 @@ fr:
   text_wiki_page_reassign_children: "Réaffecter les sous-pages à cette page"
   text_own_membership_delete_confirmation: "Vous allez supprimer tout ou partie de vos permissions sur ce projet et ne serez peut-être plus autorisé à modifier ce projet.\nEtes-vous sûr de vouloir continuer ?"
   
-  default_role_manager: Manager
-  default_role_developper: Développeur
-  default_role_reporter: Rapporteur
+  default_role_manager: "Manager "
+  default_role_developer: "Développeur "
+  default_role_reporter: "Rapporteur "
   default_tracker_bug: Anomalie
   default_tracker_feature: Evolution
   default_tracker_support: Assistance
   default_issue_status_new: Nouveau
-  default_issue_status_in_progress: In Progress
+  default_issue_status_in_progress: En cours
   default_issue_status_resolved: Résolu
   default_issue_status_feedback: Commentaire
   default_issue_status_closed: Fermé
@@ -909,3 +919,21 @@ fr:
   enumeration_system_activity: Activité système
   label_board_sticky: Sticky
   label_board_locked: Verrouillé
+  error_unable_delete_issue_status: Unable to delete issue status
+  error_can_not_delete_custom_field: Unable to delete custom field
+  error_unable_to_connect: Unable to connect ({{value}})
+  error_can_not_remove_role: This role is in use and can not be deleted.
+  error_can_not_delete_tracker: This tracker contains issues and can't be deleted.
+  field_principal: Principal
+  notice_failed_to_save_members: "Erreur lors de la sauvegarde des membres: {{errors}}."
+  text_zoom_out: Zoom arrière
+  text_zoom_in: Zoom avant
+  notice_unable_delete_time_entry: Impossible de supprimer le temps passé.
+  label_overall_spent_time: Temps passé global
+  field_time_entries: Log time
+  field_member_of_group: Member of Group
+  field_assigned_to_role: Member of Role
+  button_edit_associated_wikipage: "Modifier la page de Wiki associée: {{page_title}}"
+  text_are_you_sure_with_children: Delete issue and all child issues?
+  field_text: Text field
+
