@@ -2,7 +2,8 @@
 # Adds fields for the project image, etc
 require 'redmine'
 
-config.to_prepare do
+require 'dispatcher'
+Dispatcher.to_prepare do
   ApplicationController.helper(MenuGeneratorHelper)
 end
 
