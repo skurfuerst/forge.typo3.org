@@ -9,7 +9,8 @@ class SvnPermissionHelper
 
     authz = { 'groups' => Array.new }
     authz['groups'] << "admins = " + User.find(:all, :conditions => ["admin = true"]).collect {|user| user.login }.join(', ')
-    authz["/"] = ["* = r", "@admins = rw"]
+
+    authz["/"] = ["@admins = rw"]
 
     local_server_url = Setting.plugin_flow_svn_permissions['local_server']
 
@@ -35,6 +36,9 @@ class SvnPermissionHelper
         end
 	if (url == "")
            authz["/"] << "@" + self.generateGroupName(project) + " = rw" 
+           if (project.is_public?)
+             authz["/"] << "* = r"
+           end
 	else
            authz[url] = [ "@" + self.generateGroupName(project) + " = rw" ]
 	end

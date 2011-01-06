@@ -18,7 +18,8 @@ Redmine::Plugin.register :flow_svn_permissions do
       '/TYPO3v4/Core' => '/var/svn/typo3v4/core/conf/authz',
       '/TYPO3v4/CoreProjects' => '/var/svn/typo3v4/core_projects/conf/authz',
       '/TYPO3v4/Extensions' => '/var/svn/typo3v4/extensions/conf/authz',
-      '/TYPO3v4/Documentation' => '/var/svn/typo3v4/documentation/conf/authz'
+      '/TYPO3v4/Documentation' => '/var/svn/typo3v4/documentation/conf/authz',
+      '/projects/typo3org' => '/var/svn/projects/typo3org/conf/authz'
     },
     'local_server' => 'https://svn.typo3.org'
     }
