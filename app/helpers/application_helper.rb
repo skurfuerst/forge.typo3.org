@@ -608,6 +608,7 @@ module ApplicationHelper
   # Examples:
   #   Issues:
   #     #52 -> Link to issue #52
+  #     #M52 -> Link to Mantis issue #52
   #   Changesets:
   #     r52 -> Link to revision 52
   #     commit:a85130f -> Link to scmid starting with a85130f
@@ -630,7 +631,7 @@ module ApplicationHelper
   #  Forum messages:
   #     message#1218 -> Link to message with id 1218
   def parse_redmine_links(text, project, obj, attr, only_path, options)
-    text.gsub!(%r{([\s\(,\-\[\>]|^)(!)?(attachment|document|version|commit|source|export|message|project)?((#|r)(\d+)|(:)([^"\s<>][^\s<>]*?|"[^"]+?"))(?=(?=[[:punct:]]\W)|,|\s|\]|<|$)}) do |m|
+    text.gsub!(%r{([\s\(,\-\[\>]|^)(!)?(attachment|document|version|commit|source|export|message|project)?((#|#M|r)(\d+)|(:)([^"\s<>][^\s<>]*?|"[^"]+?"))(?=(?=[[:punct:]]\W)|,|\s|\]|<|$)}) do |m|
       leading, esc, prefix, sep, identifier = $1, $2, $3, $5 || $7, $6 || $8
       link = nil
       if esc.nil?
@@ -640,6 +641,10 @@ module ApplicationHelper
                                       :class => 'changeset',
                                       :title => truncate_single_line(changeset.comments, :length => 100))
           end
+        elsif sep == '#M'
+          # Link to a Mantis issue
+          oid = identifier.to_i
+          link = link_to("#M#{oid}", "http://bugs.typo3.org/view.php?id=" + identifier)
         elsif sep == '#'
           oid = identifier.to_i
           case prefix
