@@ -48,7 +48,7 @@
   <%= call_hook(:view_projects_show_left, :project => @project) %>
 
   <!-- activities -->
-    <% if @events_by_day.any?  %><!-- && authorize_for('activity', 'index') DOES NOT WORK YET -->
+    <% if @events_by_day && @events_by_day.any?  %><!-- && authorize_for('activity', 'index') DOES NOT WORK YET -->
     <div class="box project-activity-container">
       <h3 class="icon22 icon22-tracker">Recent activities</h3>
       <% @events_by_day.keys.sort {|x,y| y <=> x }.each do |day| %>
