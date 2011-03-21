@@ -13,18 +13,14 @@
 <div class="splitcontentleft">
 <h3><%=l(:field_mail_notification)%></h3>
 <div class="box">
-<%= select_tag 'notification_option', options_for_select(@notification_options, @notification_option),
-                                      :onchange => 'if ($("notification_option").value == "selected") {Element.show("notified-projects")} else {Element.hide("notified-projects")}' %>
-<% content_tag 'div', :id => 'notified-projects', :style => (@notification_option == 'selected' ? '' : 'display:none;') do %>
-<p><% User.current.projects.each do |project| %>
-    <label><%= check_box_tag 'notified_project_ids[]', project.id, @user.notified_projects_ids.include?(project.id) %> <%=h project.name %></label><br />
-<% end %></p>
-<p><em><%= l(:text_user_mail_option) %></em></p>
-<% end %>
-<p><label><%= check_box_tag 'no_self_notified', 1, @user.pref[:no_self_notified] %> <%= l(:label_user_mail_no_self_notified) %></label></p>
+<%= render :partial => 'users/mail_notifications' %>
 <%= submit_tag l(:button_save) %>
 </div>
 
+<h3><%=l(:label_preferences)%></h3>
+<div class="box tabular">
+<%= render :partial => 'users/preferences' %>
+</div>
 
 </div>
 <% end %>

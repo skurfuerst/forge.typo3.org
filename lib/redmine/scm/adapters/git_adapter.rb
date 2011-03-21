@@ -35,7 +35,7 @@ module Redmine
         def branches
           return @branches if @branches
           @branches = []
-          cmd = "#{GIT_BIN} --git-dir #{target('')} branch"
+          cmd = "#{GIT_BIN} --git-dir #{target('')} branch --no-color"
           shellout(cmd) do |io|
             io.each_line do |line|
               @branches << line.match('\s*\*?\s*(.*)$')[1]
@@ -86,15 +86,16 @@ module Redmine
 
         def lastrev(path,rev)
           return nil if path.nil?
-          cmd = "#{GIT_BIN} --git-dir #{target('')} log --date=iso --pretty=fuller --no-merges -n 1 "
+          cmd = "#{GIT_BIN} --git-dir #{target('')} log --no-color --date=iso --pretty=fuller --no-merges -n 1 "
           cmd << " #{shell_quote rev} " if rev 
           cmd <<  "-- #{shell_quote path} " unless path.empty?
-          shellout(cmd) do |io|
-            begin
-              id = io.gets.split[1]
-              author = io.gets.match('Author:\s+(.*)$')[1]
-              2.times { io.gets }
-              time = Time.parse(io.gets.match('CommitDate:\s+(.*)$')[1]).localtime
+          lines = []
+          shellout(cmd) { |io| lines = io.readlines }
+          return nil if $? && $?.exitstatus != 0
+          begin
+              id = lines[0].split[1]
+              author = lines[1].match('Author:\s+(.*)$')[1]
+              time = Time.parse(lines[4].match('CommitDate:\s+(.*)$')[1]).localtime
 
               Revision.new({
                 :identifier => id,
@@ -104,20 +105,19 @@ module Redmine
                 :message => nil, 
                 :paths => nil 
               })
-            rescue NoMethodError => e
+          rescue NoMethodError => e
               logger.error("The revision '#{path}' has a wrong format")
               return nil
-            end
           end
         end
 
         def revisions(path, identifier_from, identifier_to, options={})
           revisions = Revisions.new
 
-          cmd = "#{GIT_BIN} --git-dir #{target('')} log --raw --date=iso --pretty=fuller "
+          cmd = "#{GIT_BIN} --git-dir #{target('')} log --no-color --raw --date=iso --pretty=fuller "
           cmd << " --reverse " if options[:reverse]
           cmd << " --all " if options[:all]
-          cmd << " -n #{options[:limit]} " if options[:limit]
+          cmd << " -n #{options[:limit].to_i} " if options[:limit]
           cmd << "#{shell_quote(identifier_from + '..')}" if identifier_from
           cmd << "#{shell_quote identifier_to}" if identifier_to
           cmd << " --since=#{shell_quote(options[:since].strftime("%Y-%m-%d %H:%M:%S"))}" if options[:since]
@@ -209,9 +209,9 @@ module Redmine
           path ||= ''
 
           if identifier_to
-            cmd = "#{GIT_BIN} --git-dir #{target('')} diff #{shell_quote identifier_to} #{shell_quote identifier_from}" 
+            cmd = "#{GIT_BIN} --git-dir #{target('')} diff --no-color #{shell_quote identifier_to} #{shell_quote identifier_from}" 
           else
-            cmd = "#{GIT_BIN} --git-dir #{target('')} show #{shell_quote identifier_from}"
+            cmd = "#{GIT_BIN} --git-dir #{target('')} show --no-color #{shell_quote identifier_from}"
           end
 
           cmd << " -- #{shell_quote path}" unless path.empty?
@@ -255,7 +255,7 @@ module Redmine
           if identifier.nil?
             identifier = 'HEAD'
           end
-          cmd = "#{GIT_BIN} --git-dir #{target('')} show #{shell_quote(identifier + ':' + path)}"
+          cmd = "#{GIT_BIN} --git-dir #{target('')} show --no-color #{shell_quote(identifier + ':' + path)}"
           cat = nil
           shellout(cmd) do |io|
             io.binmode
@@ -263,6 +263,13 @@ module Redmine
           end
           return nil if $? && $?.exitstatus != 0
           cat
+        end
+
+        class Revision < Redmine::Scm::Adapters::Revision
+          # Returns the readable identifier
+          def format_identifier
+            identifier[0,8]
+          end
         end
       end
     end

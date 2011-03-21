@@ -27,7 +27,7 @@ class TimeEntry < ActiveRecord::Base
 
   acts_as_customizable
   acts_as_event :title => Proc.new {|o| "#{l_hours(o.hours)} (#{(o.issue || o.project).event_title})"},
-                :url => Proc.new {|o| {:controller => 'timelog', :action => 'details', :project_id => o.project, :issue_id => o.issue}},
+                :url => Proc.new {|o| {:controller => 'timelog', :action => 'index', :project_id => o.project, :issue_id => o.issue}},
                 :author => :user,
                 :description => :comments
 
@@ -66,6 +66,9 @@ class TimeEntry < ActiveRecord::Base
   # these attributes make time aggregations easier
   def spent_on=(date)
     super
+    if spent_on.is_a?(Time)
+      self.spent_on = spent_on.to_date
+    end
     self.tyear = spent_on ? spent_on.year : nil
     self.tmonth = spent_on ? spent_on.month : nil
     self.tweek = spent_on ? Date.civil(spent_on.year, spent_on.month, spent_on.day).cweek : nil

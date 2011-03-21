@@ -1,5 +1,5 @@
-# redMine - project management software
-# Copyright (C) 2006  Jean-Philippe Lang
+# Redmine - project management software
+# Copyright (C) 2006-2011  Jean-Philippe Lang
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-require File.dirname(__FILE__) + '/../test_helper'
+require File.expand_path('../../test_helper', __FILE__)
 
 class UserTest < ActiveSupport::TestCase
   fixtures :users, :members, :projects, :roles, :member_roles, :auth_sources
@@ -60,6 +60,18 @@ class UserTest < ActiveSupport::TestCase
     user.password, user.password_confirmation = "password", "password"
     assert user.save
   end
+
+  context "User#before_create" do
+    should "set the mail_notification to the default Setting" do
+      @user1 = User.generate_with_protected!
+      assert_equal 'only_my_events', @user1.mail_notification
+
+      with_settings :default_notification_option => 'all' do
+        @user2 = User.generate_with_protected!
+        assert_equal 'all', @user2.mail_notification
+      end
+    end
+  end
   
   context "User.login" do
     should "be case-insensitive." do
@@ -103,10 +115,17 @@ class UserTest < ActiveSupport::TestCase
     assert Member.find_all_by_user_id(2).empty?
   end
   
-  def test_validate
+  def test_validate_login_presence
     @admin.login = ""
     assert !@admin.save
     assert_equal 1, @admin.errors.count
+  end
+  
+  def test_validate_mail_notification_inclusion
+    u = User.new
+    u.mail_notification = 'foo'
+    u.save
+    assert_not_nil u.errors.on(:mail_notification)
   end
   
   context "User#try_to_login" do
@@ -284,8 +303,21 @@ class UserTest < ActiveSupport::TestCase
     assert_nil @dlopper.roles_for_project(Project.find(2)).detect {|role| role.member?}
   end
   
+  def test_valid_notification_options
+    # without memberships
+    assert_equal 5, User.find(7).valid_notification_options.size
+    # with memberships
+    assert_equal 6, User.find(2).valid_notification_options.size
+  end
+  
+  def test_valid_notification_options_class_method
+    assert_equal 5, User.valid_notification_options.size
+    assert_equal 5, User.valid_notification_options(User.find(7)).size
+    assert_equal 6, User.valid_notification_options(User.find(2)).size
+  end
+  
   def test_mail_notification_all
-    @jsmith.mail_notification = true
+    @jsmith.mail_notification = 'all'
     @jsmith.notified_project_ids = []
     @jsmith.save
     @jsmith.reload
@@ -293,15 +325,15 @@ class UserTest < ActiveSupport::TestCase
   end
   
   def test_mail_notification_selected
-    @jsmith.mail_notification = false
+    @jsmith.mail_notification = 'selected'
     @jsmith.notified_project_ids = [1]
     @jsmith.save
     @jsmith.reload
     assert Project.find(1).recipients.include?(@jsmith.mail)
   end
   
-  def test_mail_notification_none
-    @jsmith.mail_notification = false
+  def test_mail_notification_only_my_events
+    @jsmith.mail_notification = 'only_my_events'
     @jsmith.notified_project_ids = []
     @jsmith.save
     @jsmith.reload
@@ -384,6 +416,23 @@ class UserTest < ActiveSupport::TestCase
         assert ! @dlopper.allowed_to?(:delete_messages, project) #Developper
       end
     end
+
+    context "with multiple projects" do
+      should "return false if array is empty" do
+        assert ! @admin.allowed_to?(:view_project, [])
+      end
+      
+      should "return true only if user has permission on all these projects" do
+        assert @admin.allowed_to?(:view_project, Project.all)
+        assert ! @dlopper.allowed_to?(:view_project, Project.all) #cannot see Project(2)
+        assert @jsmith.allowed_to?(:edit_issues, @jsmith.projects) #Manager or Developer everywhere
+        assert ! @jsmith.allowed_to?(:delete_issue_watchers, @jsmith.projects) #Dev cannot delete_issue_watchers
+      end
+      
+      should "behave correctly with arrays of 1 project" do
+        assert ! User.anonymous.allowed_to?(:delete_issues, [Project.first])
+      end
+    end
     
     context "with options[:global]" do
       should "authorize if user has at least one role that has this permission" do
@@ -395,6 +444,83 @@ class UserTest < ActiveSupport::TestCase
         assert ! @anonymous.allowed_to?(:add_issues, nil, :global => true)
         assert @anonymous.allowed_to?(:view_issues, nil, :global => true)
       end
+    end
+  end
+  
+  context "User#notify_about?" do
+    context "Issues" do
+      setup do
+        @project = Project.find(1)
+        @author = User.generate_with_protected!
+        @assignee = User.generate_with_protected!
+        @issue = Issue.generate_for_project!(@project, :assigned_to => @assignee, :author => @author)
+      end
+
+      should "be true for a user with :all" do
+        @author.update_attribute(:mail_notification, 'all')
+        assert @author.notify_about?(@issue)
+      end
+      
+      should "be false for a user with :none" do
+        @author.update_attribute(:mail_notification, 'none')
+        assert ! @author.notify_about?(@issue)
+      end
+      
+      should "be false for a user with :only_my_events and isn't an author, creator, or assignee" do
+        @user = User.generate_with_protected!(:mail_notification => 'only_my_events')
+        Member.create!(:user => @user, :project => @project, :role_ids => [1])
+        assert ! @user.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :only_my_events and is the author" do
+        @author.update_attribute(:mail_notification, 'only_my_events')
+        assert @author.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :only_my_events and is the assignee" do
+        @assignee.update_attribute(:mail_notification, 'only_my_events')
+        assert @assignee.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :only_assigned and is the assignee" do
+        @assignee.update_attribute(:mail_notification, 'only_assigned')
+        assert @assignee.notify_about?(@issue)
+      end
+      
+      should "be false for a user with :only_assigned and is not the assignee" do
+        @author.update_attribute(:mail_notification, 'only_assigned')
+        assert ! @author.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :only_owner and is the author" do
+        @author.update_attribute(:mail_notification, 'only_owner')
+        assert @author.notify_about?(@issue)
+      end
+      
+      should "be false for a user with :only_owner and is not the author" do
+        @assignee.update_attribute(:mail_notification, 'only_owner')
+        assert ! @assignee.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :selected and is the author" do
+        @author.update_attribute(:mail_notification, 'selected')
+        assert @author.notify_about?(@issue)
+      end
+      
+      should "be true for a user with :selected and is the assignee" do
+        @assignee.update_attribute(:mail_notification, 'selected')
+        assert @assignee.notify_about?(@issue)
+      end
+      
+      should "be false for a user with :selected and is not the author or assignee" do
+        @user = User.generate_with_protected!(:mail_notification => 'selected')
+        Member.create!(:user => @user, :project => @project, :role_ids => [1])
+        assert ! @user.notify_about?(@issue)
+      end
+    end
+
+    context "other events" do
+      should 'be added and tested'
     end
   end
   

@@ -120,12 +120,8 @@ task :migrate_from_mantis => :environment do
       has_many :news, :class_name => "MantisNews", :foreign_key => :project_id
       has_many :members, :class_name => "MantisProjectUser", :foreign_key => :project_id
       
-      def name
-        read_attribute(:name)[0..29]
-      end
-      
       def identifier
-        read_attribute(:name).underscore[0..19].gsub(/[^a-z0-9\-]/, '-')
+        read_attribute(:name).gsub(/[^a-z0-9\-]+/, '-').slice(0, Project::IDENTIFIER_MAX_LENGTH)
       end
     end
     
@@ -293,7 +289,7 @@ task :migrate_from_mantis => :environment do
     	project.versions.each do |version|
           v = Version.new :name => encode(version.version),
                           :description => encode(version.description),
-                          :effective_date => version.date_order.to_date
+                          :effective_date => (version.date_order ? version.date_order.to_date : nil)
           v.project = p
           v.save
           versions_map[version.id] = v.id
