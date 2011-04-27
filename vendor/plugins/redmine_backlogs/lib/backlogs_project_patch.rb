@@ -31,16 +31,16 @@ module Backlogs
 
       case cat
         when :error
-          if subkey.blank?
+          if subkey.nil?
             raise "Already reported #{key.inspect}" if @errors.include?(key)
-            @errors[key] = value.blank? ? nil : (!!value)
+            @errors[key] = value.nil? ? nil : (!!value)
 
           else
             raise "Already reported #{key.inspect}" if @errors.include?(key) && ! @errors[key].is_a?(Hash)
             @errors[key] ||= {}
 
             raise "Already errors #{key.inspect}/#{subkey.inspect}" if @errors[key].include?(subkey)
-            @errors[key][subkey] = value.blank? ? nil : (!!value)
+            @errors[key][subkey] = value.nil? ? nil : (!!value)
           end
 
         when :info
@@ -50,15 +50,16 @@ module Backlogs
     end
 
     def score
-      score = {}
+      scoring = {}
       @errors.each_pair{ |k, v|
         if v.is_a? Hash
-          score[k] = v.values.select{|elt| !elt.blank? }.inject(true){|all, elt| all && elt}
+          v = v.values.select{|s| !s.nil?}
+          scoring[k] = v.select{|s| s}.size == 0 if v.size != 0
         else
-          score[k] = v if !v.blank?
+          scoring[k] = !v unless v.nil?
         end
       }
-      return ((score.values.select{|v| v}.size * 10) / score.size)
+      return ((scoring.values.select{|v| v}.size * 10) / scoring.size)
     end
 
     def scores(prefix='')
@@ -162,11 +163,19 @@ module Backlogs
         end
         @scrum_statistics[:info, :velocity] = velocity
   
-        begin
-          dps = (all_sprints.inject(0){|d, s| d + s.days.size} / all_sprints.size)
-          @scrum_statistics[:info, :average_days_per_sprint] = dps
-          @scrum_statistics[:info, :average_days_per_point] = (velocity ? dps.to_f / velocity : nil)
-        rescue ZeroDivisionError
+        if all_sprints.size != 0 && velocity && velocity != 0
+          begin
+            dps = (all_sprints.inject(0){|d, s| d + s.days.size} / all_sprints.size)
+            @scrum_statistics[:info, :average_days_per_sprint] = dps
+            @scrum_statistics[:info, :average_days_per_point] = (velocity ? (dps.to_f / velocity) : nil)
+          rescue ZeroDivisionError
+            dps = nil
+          end
+        else
+          dps = nil
+        end
+
+        if dps.nil?
           @scrum_statistics[:info, :average_days_per_sprint] = nil
           @scrum_statistics[:info, :average_days_per_point] = nil
         end
@@ -189,7 +198,8 @@ module Backlogs
           points_per_hour = Story.find_by_sql("select avg(story_points) / avg(estimated_hours) as points_per_hour from issues where #{select_stories}")[0].points_per_hour
   
           if points_per_hour
-            stories = Stories.select(:all, :conditions => [select_stories])
+            points_per_hour = Float(points_per_hour)
+            stories = Story.find(:all, :conditions => [select_stories])
             error = stories.inject(0) {|err, story|
               err + (1 - (points_per_hour / (story.story_points / story.estimated_hours)))
             }

@@ -35,7 +35,7 @@
 
   <table id="impediments" class="board" cellspacing="0">
     <tr>
-      <td<div class="label_sprint_impediments"><%= l(:label_sprint_impediments) %></div></td>
+      <td><div class="label_sprint_impediments"><%= l(:label_sprint_impediments) %></div></td>
       <td class="add_new">+</td>
       <%- @statuses.each do |status| %>
       <td class="swimlane list <%= status.is_closed? ? 'closed' : '' %>" id="impcell_<%= status.id %>">
@@ -57,7 +57,7 @@
       <td class="add_new">+</td>
       <%- @statuses.each do |status| %>
       <td class="swimlane list <%= status.is_closed? ? 'closed' : '' %>" id="<%= story.id %>_<%= status.id %>">
-        <%= render :partial => "rb_tasks/task", :collection => story.children.select{|task| task.status.id==status.id} %>
+        <%= render :partial => "rb_tasks/task", :collection => story.descendants.select{|task| task.status.id==status.id} %>
       </td>
       <%- end %>
     </tr>
@@ -67,6 +67,12 @@
 <%- end %>
 
 <%- content_for :helpers do %>
+  <select class="priority_id template" id="priority_id_options">
+    <%- IssuePriority.all.each do |p| %>
+    <option value="<%= p.id %>"><%= p.name %></option>
+    <%- end %>
+  </select>
+
   <select class="assigned_to_id template" id="assigned_to_id_options">
     <option value=""> </option>
     <%- @project.members.each do |member| %>
